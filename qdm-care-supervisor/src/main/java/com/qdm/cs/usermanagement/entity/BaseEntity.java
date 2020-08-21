@@ -30,6 +30,9 @@ public class BaseEntity implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	@Column(name="Mobile_No_ISDCode")
+	int MobileNoISDCode;
+	
 	@Column(name = "Mobile_No")
 	long mobileNo;
 
