@@ -320,4 +320,77 @@ public class CareProviderController {
 			return response;
 		}
 	}
+	
+	@GetMapping(value = "/list/search", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<?> searchCareProvider(@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "10") Integer pageSize,@RequestParam("careProviderName") String careProviderName) {
+		ResponseEntity response = null;
+		try {
+			List<CareProvider> careProviderList = careProviderService.searchCareProvider(pageNo, pageSize,careProviderName);
+			List<CareProvider> totalCount = careProviderService.searchAllCareProviderListCount(careProviderName);
+			List<Object> careProviderRecords = new ArrayList<>();
+			Map<String, Object> careProvidersResponse = new HashMap<>();
+
+			for (CareProvider careProvider : careProviderList) {
+				List<Category> category = careProviderService.getCategoryListById(careProvider.getCategory());
+				List<Object> categoryList = new ArrayList<>();
+				for (Category categoryData : category) {
+					if (categoryData != null) {
+						Map<String, Object> categoryMap = new HashMap<>();
+						categoryMap.put("label", categoryData.getCategoryName());
+						categoryMap.put("value", categoryData.getCategoryId());
+						categoryList.add(categoryMap);
+					}
+				}
+
+				JSONObject careGivers = new JSONObject();
+				careGivers.put("count", careProvider.getCareGiversCount());
+				careGivers.put("name", "CareGivers");
+
+				JSONObject products = new JSONObject();
+				products.put("count", careProvider.getProductsCount());
+				products.put("name", "Products");
+
+				JSONObject offers = new JSONObject();
+				offers.put("count", careProvider.getOffersCount());
+				offers.put("name", "Offers");
+
+				JSONArray jsonarr = new JSONArray();
+				jsonarr.add(careGivers);
+				jsonarr.add(products);
+				jsonarr.add(offers);
+
+				careProvidersResponse.put("total_count", totalCount.size());
+				careProvidersResponse.put("offset", pageNo);
+
+				Map<String, Object> careProvidersData = new HashMap<>();
+				careProvidersData.put("id", careProvider.getCareProviderId());
+				careProvidersData.put("name", careProvider.getCareProviderName());
+				careProvidersData.put("isactive", careProvider.getActiveStatus());
+				careProvidersData.put("service", "");
+				if (careProvider.getUploadPhoto() != null) {
+					String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+							.path("/careProvider/downloadFile/" + careProvider.getUploadPhoto().getId()).toUriString();
+					careProvidersData.put("profile_pic", fileDownloadUri);
+				} else {
+					careProvidersData.put("profile_pic", "");
+				}
+				careProvidersData.put("category", categoryList);
+				careProvidersData.put("orderList", jsonarr);
+				careProviderRecords.add(careProvidersData);
+				careProvidersResponse.put("list", careProviderRecords);
+
+			}
+			log.info("Get All CareProviders Records");
+			response = new ResponseEntity(new ResponseInfo(ResponseType.SUCCESS.getResponseMessage(),
+					ResponseType.SUCCESS.getResponseCode(), "", careProvidersResponse), HttpStatus.OK);
+			return response;
+		} catch (Exception e) {
+			log.error("Error Occured At getCareProvider : " + e.getMessage());
+
+			response = new ResponseEntity(new ResponseInfo(ResponseType.ERROR.getResponseMessage(),
+					ResponseType.ERROR.getResponseCode(), "", null), HttpStatus.INTERNAL_SERVER_ERROR);
+			return response;
+		}
+	}
 }

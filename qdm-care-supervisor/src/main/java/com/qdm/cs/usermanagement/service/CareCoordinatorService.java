@@ -33,4 +33,8 @@ public interface CareCoordinatorService {
 
 	UploadProfile getFile(int fileId);
 
+	List<CareCoordinator> searchCareCoordinator(Integer pageNo, Integer pageSize, String careCoordinatorName);
+
+	List<CareCoordinator> searchCareCoordinatorListCount(String careCoordinatorName);
+
 }

@@ -279,4 +279,64 @@ public class CareGiverController {
 			return response;
 		}
 	}
+	
+	@GetMapping(value = "/list/search", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<?> searchCareGiver(@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "10") Integer pageSize,@RequestParam("careGiverName") String careGiverName) {
+		ResponseEntity response = null;
+		try {
+			List<CareGiver> careGiverList = careGiverService.searchCareGiver(pageNo, pageSize,careGiverName);
+			List<CareGiver> getAllCareGiversListCount = careGiverService.searchAllCareGiversListCount(careGiverName);
+			System.out.println(careGiverList.size()+"-" +getAllCareGiversListCount.size());
+			List<Object> careGiverRecords = new ArrayList<>();
+			Map<String, Object> careGiverResponse = new HashMap<>();
+			for (CareGiver careGiver : careGiverList) {
+				List<Category> category = careGiverService.getCategoryListById(careGiver.getCategory());
+				List<Object> categoryList = new ArrayList<>();
+				for (Category categoryData : category) {
+					if (categoryData != null) {
+						Map<String, Object> categoryMap = new HashMap<>();
+						categoryMap.put("label", categoryData.getCategoryName());
+						categoryMap.put("value", categoryData.getCategoryId());
+						categoryList.add(categoryMap);
+					}
+				}
+
+				JSONObject obj = new JSONObject();
+				obj.put("count", careGiver.getClientsCount());
+				obj.put("name", "Clients");
+
+				JSONArray jsonarr = new JSONArray();
+				jsonarr.add(obj);
+				careGiverResponse.put("total_count", getAllCareGiversListCount.size());
+				careGiverResponse.put("offset", pageNo);
+
+				Map<String, Object> careGiverDatas = new HashMap<>();
+				careGiverDatas.put("id", careGiver.getCareGiverId());
+				careGiverDatas.put("name", careGiver.getCareGiverName());
+				careGiverDatas.put("isactive", careGiver.getActiveStatus());
+				careGiverDatas.put("service", "");
+				if (careGiver.getUploadPhoto() != null) {
+					String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+							.path("/careGiver/downloadFile/" + careGiver.getUploadPhoto().getId()).toUriString();
+					careGiverDatas.put("profile_pic", fileDownloadUri);
+				} else {
+					careGiverDatas.put("profile_pic", "");
+				}
+				careGiverDatas.put("category", categoryList);
+				careGiverDatas.put("orderList", jsonarr);
+				careGiverRecords.add(careGiverDatas);
+				careGiverResponse.put("list", careGiverRecords);
+			}
+			log.info("Care Givers List " + careGiverResponse);
+			response = new ResponseEntity(new ResponseInfo(ResponseType.SUCCESS.getResponseMessage(),
+					ResponseType.SUCCESS.getResponseCode(), "", careGiverResponse), HttpStatus.OK);
+			return response;
+		} catch (Exception e) {
+			log.error("Error Occured At getCareGiver : " + e.getMessage());
+			response = new ResponseEntity(new ResponseInfo(ResponseType.ERROR.getResponseMessage(),
+					ResponseType.ERROR.getResponseCode(), "", null), HttpStatus.INTERNAL_SERVER_ERROR);
+			return response;
+		}
+	}
 }

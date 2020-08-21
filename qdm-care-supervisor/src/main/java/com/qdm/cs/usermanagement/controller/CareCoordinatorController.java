@@ -100,7 +100,7 @@ public class CareCoordinatorController {
 				jsonarr.add(careGivers);
 				jsonarr.add(clients);
 
-				careCoordinatorResponse.put("total_count", pageSize);
+				careCoordinatorResponse.put("total_count", careCoordinatorListCount.size());
 				careCoordinatorResponse.put("offset", pageNo);
 
 				
@@ -319,6 +319,74 @@ public class CareCoordinatorController {
 
 			response = new ResponseEntity(new ResponseInfo(ResponseType.ERROR.getResponseMessage(),
 					ResponseType.ERROR.getResponseCode(), "Try Again", null), HttpStatus.INTERNAL_SERVER_ERROR);
+			return response;
+		}
+	}
+	
+	@GetMapping(value = "/list/search", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<?> searchCareCoordinator(@RequestParam(defaultValue = "0") Integer pageNo,
+			@RequestParam(defaultValue = "10") Integer pageSize,@RequestParam("careCoordinatorName") String careCoordinatorName) {
+		ResponseEntity response = null;
+		try {
+			List<CareCoordinator> careCoordinatorList = careCoordinatorService.searchCareCoordinator(pageNo, pageSize,careCoordinatorName);
+			List<CareCoordinator> careCoordinatorListCount = careCoordinatorService.searchCareCoordinatorListCount(careCoordinatorName);
+			List<Object> coordinator = new ArrayList<>();
+			Map<String, Object> careCoordinatorResponse = new HashMap<>();
+
+			for (CareCoordinator careCoordinatorData : careCoordinatorList) {
+				List<Category> category = careCoordinatorService.getCategoryListById(careCoordinatorData.getCategory());
+				List<Object> categoryList = new ArrayList<>();
+				for (Category categoryData : category) {
+					if (categoryData != null) {
+						Map<String, Object> categoryMap = new HashMap<>();
+						categoryMap.put("label", categoryData.getCategoryName());
+						categoryMap.put("value", categoryData.getCategoryId());
+						categoryList.add(categoryMap);
+					}
+				}
+
+				JSONObject careGivers = new JSONObject();
+				careGivers.put("count", careCoordinatorData.getCareGiversCount());
+				careGivers.put("name", "CareGivers");
+
+				JSONObject clients = new JSONObject();
+				clients.put("count", careCoordinatorData.getClientsCount());
+				clients.put("name", "Clients");
+
+				JSONArray jsonarr = new JSONArray();
+				jsonarr.add(careGivers);
+				jsonarr.add(clients);
+
+				careCoordinatorResponse.put("total_count", careCoordinatorListCount.size());
+				careCoordinatorResponse.put("offset", pageNo);
+
+				
+				Map<String, Object> careCoordinatorDatas = new HashMap<>();
+				careCoordinatorDatas.put("id", careCoordinatorData.getCareCoordinatorId());
+				careCoordinatorDatas.put("name", careCoordinatorData.getCareCoordinatorName());
+				careCoordinatorDatas.put("isactive", careCoordinatorData.getActiveStatus());
+				careCoordinatorDatas.put("service", "");
+				if (careCoordinatorData.getUploadPhoto() != null) {
+					String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+							.path("/careCoordinator/downloadFile/" + careCoordinatorData.getUploadPhoto().getId()).toUriString();
+					careCoordinatorDatas.put("profile_pic", fileDownloadUri);
+				} else {
+					careCoordinatorDatas.put("profile_pic", "");
+				}
+				careCoordinatorDatas.put("category", categoryList);
+				careCoordinatorDatas.put("orderList", jsonarr);
+				coordinator.add(careCoordinatorDatas);
+				careCoordinatorResponse.put("list", coordinator);
+
+			}
+			log.info("Get All CareCoordinator Records - Total Count : " + careCoordinatorResponse.size());
+			response = new ResponseEntity(new ResponseInfo(ResponseType.SUCCESS.getResponseMessage(),
+					ResponseType.SUCCESS.getResponseCode(), "", careCoordinatorResponse), HttpStatus.OK);
+			return response;
+		} catch (Exception e) {
+			log.error("Error Occured At getCareCoordinator : " + e.getMessage());
+			response = new ResponseEntity(new ResponseInfo(ResponseType.ERROR.getResponseMessage(),
+					ResponseType.ERROR.getResponseCode(), "", null), HttpStatus.INTERNAL_SERVER_ERROR);
 			return response;
 		}
 	}

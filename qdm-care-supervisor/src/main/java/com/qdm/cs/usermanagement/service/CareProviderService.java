@@ -33,4 +33,8 @@ public interface CareProviderService {
 
 	UploadProfile getFile(int fileId);
 
+	List<CareProvider> searchCareProvider(Integer pageNo, Integer pageSize, String careProviderName);
+
+	List<CareProvider> searchAllCareProviderListCount(String careProviderName);
+
 }

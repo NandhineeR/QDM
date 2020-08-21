@@ -165,4 +165,16 @@ public class CareProviderServiceImpl implements CareProviderService {
 	public UploadProfile getFile(int fileId) {
 		return uploadProfileRepository.findById(fileId).get();
 	}
+
+	@Override
+	public List<CareProvider> searchCareProvider(Integer pageNo, Integer pageSize, String careProviderName) {
+		Pageable paging = PageRequest.of(pageNo, pageSize);
+		Page<CareProvider> pagedResult = careProviderRepository.findByCareProviderName(careProviderName.toLowerCase(),paging);
+		return pagedResult.hasContent() ? pagedResult.getContent() : new ArrayList<CareProvider>();
+	}
+
+	@Override
+	public List<CareProvider> searchAllCareProviderListCount(String careProviderName) {
+		return careProviderRepository.findByCareProviderName(careProviderName.toLowerCase());
+	}
 }

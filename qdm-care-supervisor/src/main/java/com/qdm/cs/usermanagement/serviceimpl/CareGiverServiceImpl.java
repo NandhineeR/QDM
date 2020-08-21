@@ -151,4 +151,16 @@ public class CareGiverServiceImpl implements CareGiverService {
 		return uploadProfileRepository.findById(fileId).get();
 	}
 
+	@Override
+	public List<CareGiver> searchCareGiver(Integer pageNo, Integer pageSize, String careGiverName) {
+		Pageable paging = PageRequest.of(pageNo, pageSize);
+		Page<CareGiver> pagedResult = careGiverRepository.findByCareGiverName(careGiverName.toLowerCase(), paging);
+		return pagedResult.hasContent() ? pagedResult.getContent() : new ArrayList<CareGiver>();
+	}
+
+	@Override
+	public List<CareGiver> searchAllCareGiversListCount(String careGiverName) {
+		return careGiverRepository.findByCareGiverName(careGiverName.toLowerCase());
+	}
+
 }

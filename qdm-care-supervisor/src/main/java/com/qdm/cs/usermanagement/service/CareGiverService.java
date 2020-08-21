@@ -31,4 +31,8 @@ public interface CareGiverService {
 
 	UploadProfile getFile(int fileId);
 
+	List<CareGiver> searchCareGiver(Integer pageNo, Integer pageSize, String careGiverName);
+
+	List<CareGiver> searchAllCareGiversListCount(String careGiverName);
+
 }

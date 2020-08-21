@@ -163,4 +163,16 @@ public class CareCoordinatorServiceImpl implements CareCoordinatorService {
 	public UploadProfile getFile(int fileId) {
 		return uploadProfileRepository.findById(fileId).get();
 	}
+
+	@Override
+	public List<CareCoordinator> searchCareCoordinator(Integer pageNo, Integer pageSize, String careCoordinatorName) {
+		Pageable paging = PageRequest.of(pageNo, pageSize);
+		Page<CareCoordinator> pagedResult = careCoordinatorRepository.findByCareCoordinatorName(careCoordinatorName.toLowerCase(),paging);
+		return pagedResult.hasContent() ? pagedResult.getContent() : new ArrayList<CareCoordinator>();
+	}
+
+	@Override
+	public List<CareCoordinator> searchCareCoordinatorListCount(String careCoordinatorName) {
+		return careCoordinatorRepository.findByCareCoordinatorName(careCoordinatorName.toLowerCase());
+	}
 }
