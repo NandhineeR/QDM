@@ -136,21 +136,25 @@ public class ClientController {
 				bodyTemp.put("vital_sign", "Body Temperature");
 				bodyTemp.put("value", clientsData.getBodyTemperature());
 				bodyTemp.put("measure_unit", "Celsius");
+				bodyTemp.put("color_code", "#DC143C");
 
 				Map<String, Object> bloodPressure = new HashMap();
 				bloodPressure.put("vital_sign", "Blood Pressure");
 				bloodPressure.put("value", clientsData.getBloodPressure());
-				bloodPressure.put("measure_unit", "");
+				bloodPressure.put("measure_unit", "Normal");
+				bloodPressure.put("color_code", "#008000");
 
 				Map<String, Object> pulseRate = new HashMap();
 				pulseRate.put("vital_sign", "Pulse Rate");
 				pulseRate.put("value", clientsData.getPulseRate());
 				pulseRate.put("measure_unit", "Bpm");
+				pulseRate.put("color_code", "#008000");
 				
 				Map<String, Object> respiration = new HashMap();
 				respiration.put("vital_sign", "Respiration Rate");
 				respiration.put("value", clientsData.getRespirationRate());
 				respiration.put("measure_unit", "Bpm");
+				respiration.put("color_code", "#FCFC0B");
 
 				List<Object> vitalsign = new ArrayList();
 				vitalsign.add(bodyTemp);
@@ -161,6 +165,7 @@ public class ClientController {
 				Map<String, Object> emergency_contact = new HashMap();
 				emergency_contact.put("contact_name", clientsData.getRelativeName());
 				emergency_contact.put("mobile_no", clientsData.getRelativeMobilenumber());
+				emergency_contact.put("mobile_no_isd_code", clientsData.getRelativeMobileISDcode());
 
 				Map<String, Object> clientDetails = new HashMap();
 				clientDetails.put("id", clientsData.getId());
@@ -169,6 +174,7 @@ public class ClientController {
 				clientDetails.put("upcoming_activity", "Initial asessment");
 				clientDetails.put("age", clientsData.getAge());
 				clientDetails.put("gender", clientsData.getGender());
+				clientDetails.put("mobile_no_isd_code", clientsData.getMobilenumberISDcode());
 				clientDetails.put("mobile_no", clientsData.getMobilenumber());
 				clientDetails.put("status_type", "");
 				clientDetails.put("profile_pic", fileDownloadUri);

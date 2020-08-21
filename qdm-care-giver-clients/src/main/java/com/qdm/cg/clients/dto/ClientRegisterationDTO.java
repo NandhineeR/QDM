@@ -27,6 +27,7 @@ public class ClientRegisterationDTO {
 	String ic;
 	String passport;
 	String emailid;
+	int mobilenumberISDcode;
 	long mobilenumber;
 	String address;
 	String occupation;
@@ -40,6 +41,7 @@ public class ClientRegisterationDTO {
 	String relativeName;
 	String relationship;
 	String relativeEmailid;
+	int relativeMobileISDcode;
 	long relativeMobilenumber;
 
 	// HealthInformation
