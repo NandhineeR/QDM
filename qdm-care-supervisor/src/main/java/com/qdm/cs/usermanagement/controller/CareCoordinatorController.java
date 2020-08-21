@@ -68,11 +68,21 @@ public class CareCoordinatorController {
 
 	@GetMapping(value = "/list/get", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<?> getCareCoordinator(@RequestParam(defaultValue = "0") Integer pageNo,
-			@RequestParam(defaultValue = "10") Integer pageSize) {
+			@RequestParam(defaultValue = "10") Integer pageSize,
+			@RequestParam(value = "careCoordinatorName",required = false) String careCoordinatorName) {
 		ResponseEntity response = null;
+		List<CareCoordinator> careCoordinatorList;
+		List<CareCoordinator> careCoordinatorListCount;
+
 		try {
-			List<CareCoordinator> careCoordinatorList = careCoordinatorService.getCareCoordinator(pageNo, pageSize);
-			List<CareCoordinator> careCoordinatorListCount = careCoordinatorService.getCareCoordinatorListCount();
+			if (careCoordinatorName == null) {
+				careCoordinatorList = careCoordinatorService.getCareCoordinator(pageNo, pageSize);
+				careCoordinatorListCount = careCoordinatorService.getCareCoordinatorListCount();
+			} else {
+				careCoordinatorList = careCoordinatorService.searchCareCoordinator(pageNo, pageSize,
+						careCoordinatorName);
+				careCoordinatorListCount = careCoordinatorService.searchCareCoordinatorListCount(careCoordinatorName);
+			}
 			List<Object> coordinator = new ArrayList<>();
 			Map<String, Object> careCoordinatorResponse = new HashMap<>();
 
@@ -103,7 +113,6 @@ public class CareCoordinatorController {
 				careCoordinatorResponse.put("total_count", careCoordinatorListCount.size());
 				careCoordinatorResponse.put("offset", pageNo);
 
-				
 				Map<String, Object> careCoordinatorDatas = new HashMap<>();
 				careCoordinatorDatas.put("id", careCoordinatorData.getCareCoordinatorId());
 				careCoordinatorDatas.put("name", careCoordinatorData.getCareCoordinatorName());
@@ -111,7 +120,8 @@ public class CareCoordinatorController {
 				careCoordinatorDatas.put("service", "");
 				if (careCoordinatorData.getUploadPhoto() != null) {
 					String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-							.path("/careCoordinator/downloadFile/" + careCoordinatorData.getUploadPhoto().getId()).toUriString();
+							.path("/careCoordinator/downloadFile/" + careCoordinatorData.getUploadPhoto().getId())
+							.toUriString();
 					careCoordinatorDatas.put("profile_pic", fileDownloadUri);
 				} else {
 					careCoordinatorDatas.put("profile_pic", "");
@@ -134,8 +144,7 @@ public class CareCoordinatorController {
 		}
 	}
 
-	@GetMapping(value = "/details/get/{careCoordinatorId}", produces = {
-			MediaType.APPLICATION_JSON_VALUE })
+	@GetMapping(value = "/details/get/{careCoordinatorId}", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<?> editCareGiverDetails(@PathVariable("careCoordinatorId") int careCoordinatorId) {
 		ResponseEntity response = null;
 		try {
@@ -160,7 +169,8 @@ public class CareCoordinatorController {
 				careCoordinatorRecord.put("isactive", careCoordinatorData.getActiveStatus());
 				if (careCoordinatorData.getUploadPhoto() != null) {
 					String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-							.path("/careCoordinator/downloadFile/" + careCoordinatorData.getUploadPhoto().getId()).toUriString();
+							.path("/careCoordinator/downloadFile/" + careCoordinatorData.getUploadPhoto().getId())
+							.toUriString();
 
 					careCoordinatorRecord.put("profile_pic", fileDownloadUri);
 				} else {
@@ -239,7 +249,7 @@ public class CareCoordinatorController {
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + databaseFile.getFileName() + "\"")
 				.body(new ByteArrayResource(databaseFile.getData()));
 	}
-	
+
 	@PutMapping("/updateClientsCount/{careCoordinatorId}/{clientsCount}")
 	public ResponseEntity<?> updateClientsCount(@PathVariable("careCoordinatorId") long careCoordinatorId,
 			@PathVariable("clientsCount") int clientsCount) {
@@ -298,7 +308,8 @@ public class CareCoordinatorController {
 	}
 
 	@PutMapping("/updateCareCoordinatorAvailabilityStatus/{careCoordinatorId}/{activeStatus}")
-	public ResponseEntity<?> updateCareCoordinatorAvailabilityStatus(@PathVariable("careCoordinatorId") long careCoordinatorId,
+	public ResponseEntity<?> updateCareCoordinatorAvailabilityStatus(
+			@PathVariable("careCoordinatorId") long careCoordinatorId,
 			@PathVariable("activeStatus") Status activeStatus) {
 		ResponseEntity response = null;
 		try {
@@ -323,72 +334,5 @@ public class CareCoordinatorController {
 			return response;
 		}
 	}
-	
-	@GetMapping(value = "/list/search", produces = { MediaType.APPLICATION_JSON_VALUE })
-	public ResponseEntity<?> searchCareCoordinator(@RequestParam(defaultValue = "0") Integer pageNo,
-			@RequestParam(defaultValue = "10") Integer pageSize,@RequestParam("careCoordinatorName") String careCoordinatorName) {
-		ResponseEntity response = null;
-		try {
-			List<CareCoordinator> careCoordinatorList = careCoordinatorService.searchCareCoordinator(pageNo, pageSize,careCoordinatorName);
-			List<CareCoordinator> careCoordinatorListCount = careCoordinatorService.searchCareCoordinatorListCount(careCoordinatorName);
-			List<Object> coordinator = new ArrayList<>();
-			Map<String, Object> careCoordinatorResponse = new HashMap<>();
 
-			for (CareCoordinator careCoordinatorData : careCoordinatorList) {
-				List<Category> category = careCoordinatorService.getCategoryListById(careCoordinatorData.getCategory());
-				List<Object> categoryList = new ArrayList<>();
-				for (Category categoryData : category) {
-					if (categoryData != null) {
-						Map<String, Object> categoryMap = new HashMap<>();
-						categoryMap.put("label", categoryData.getCategoryName());
-						categoryMap.put("value", categoryData.getCategoryId());
-						categoryList.add(categoryMap);
-					}
-				}
-
-				JSONObject careGivers = new JSONObject();
-				careGivers.put("count", careCoordinatorData.getCareGiversCount());
-				careGivers.put("name", "CareGivers");
-
-				JSONObject clients = new JSONObject();
-				clients.put("count", careCoordinatorData.getClientsCount());
-				clients.put("name", "Clients");
-
-				JSONArray jsonarr = new JSONArray();
-				jsonarr.add(careGivers);
-				jsonarr.add(clients);
-
-				careCoordinatorResponse.put("total_count", careCoordinatorListCount.size());
-				careCoordinatorResponse.put("offset", pageNo);
-
-				
-				Map<String, Object> careCoordinatorDatas = new HashMap<>();
-				careCoordinatorDatas.put("id", careCoordinatorData.getCareCoordinatorId());
-				careCoordinatorDatas.put("name", careCoordinatorData.getCareCoordinatorName());
-				careCoordinatorDatas.put("isactive", careCoordinatorData.getActiveStatus());
-				careCoordinatorDatas.put("service", "");
-				if (careCoordinatorData.getUploadPhoto() != null) {
-					String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-							.path("/careCoordinator/downloadFile/" + careCoordinatorData.getUploadPhoto().getId()).toUriString();
-					careCoordinatorDatas.put("profile_pic", fileDownloadUri);
-				} else {
-					careCoordinatorDatas.put("profile_pic", "");
-				}
-				careCoordinatorDatas.put("category", categoryList);
-				careCoordinatorDatas.put("orderList", jsonarr);
-				coordinator.add(careCoordinatorDatas);
-				careCoordinatorResponse.put("list", coordinator);
-
-			}
-			log.info("Get All CareCoordinator Records - Total Count : " + careCoordinatorResponse.size());
-			response = new ResponseEntity(new ResponseInfo(ResponseType.SUCCESS.getResponseMessage(),
-					ResponseType.SUCCESS.getResponseCode(), "", careCoordinatorResponse), HttpStatus.OK);
-			return response;
-		} catch (Exception e) {
-			log.error("Error Occured At getCareCoordinator : " + e.getMessage());
-			response = new ResponseEntity(new ResponseInfo(ResponseType.ERROR.getResponseMessage(),
-					ResponseType.ERROR.getResponseCode(), "", null), HttpStatus.INTERNAL_SERVER_ERROR);
-			return response;
-		}
-	}
 }
