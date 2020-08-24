@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClientActivityDto {
-	private int activity_id;
-	private String activity_name;
-	private String client_name;
+public class TimeLine {
+	private String status;
 	private String date_time;
-
+	private boolean is_completed;
 }

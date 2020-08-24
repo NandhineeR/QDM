@@ -7,12 +7,11 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class ClientActivityDto {
-	private int activity_id;
-	private String activity_name;
-	private String client_name;
-	private String date_time;
-
+@NoArgsConstructor
+public class RecommendedProductsDto {
+	private String product_name;
+	private int product_id;
+	private String product_price;
+	private String current_status;
 }

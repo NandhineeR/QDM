@@ -50,9 +50,16 @@ public class ManageClientsController {
 	}
 
 	@GetMapping("/recommendations/products/list/get")
-	public ResponseEntity<?> getRecommendationsProductsList() {
-		return null;
+	public ResponseEntity<?> getRecommendationsProductsList(@RequestParam String clientId) {
+		ResponseInfo responseinfo = manageClientService.getRecommendedProductList();
+		return new ResponseEntity<Object>(responseinfo, HttpStatus.OK);
 	}
+	@GetMapping("/recommendations/products/track/get")
+	public ResponseEntity<?> getRecommendationsProductsTrack(@RequestParam String clientId) {
+		ResponseInfo responseinfo = manageClientService.getRecommendedProductTrack();
+		return new ResponseEntity<Object>(responseinfo, HttpStatus.OK);
+	}
+	
 
 	@GetMapping("/products/ratings/get")
 	public ResponseEntity<?> getRatingsList(@RequestParam String productId) {
@@ -61,15 +68,14 @@ public class ManageClientsController {
 	}
 
 	@GetMapping("/activities/summary/get")
-	public ResponseEntity<?> getActivitySummary() {
+	public ResponseEntity<?> getActivitySummary(@RequestParam String activityId) {
 		ResponseInfo responseinfo = manageClientService.getActivitySummary();
 		return new ResponseEntity<Object>(responseinfo, HttpStatus.OK);
 	}
 
 	@GetMapping("/activities/get")
-	public ResponseEntity<?> getActivity() {
+	public ResponseEntity<?> getActivity(@RequestParam String clientId) {
 		ResponseInfo responseinfo = manageClientService.getClientActivity();
 		return new ResponseEntity<Object>(responseinfo, HttpStatus.OK);
 	}
-
 }
