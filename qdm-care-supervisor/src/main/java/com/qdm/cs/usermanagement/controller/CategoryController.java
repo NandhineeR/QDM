@@ -1,6 +1,9 @@
 package com.qdm.cs.usermanagement.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -50,8 +53,15 @@ public class CategoryController {
 		ResponseEntity response = null;
 		try {
 			List<Category> categoryList = categoryService.getCategoryList();
+			List<Object> list=new ArrayList<Object>();
+			for (Category category : categoryList) {
+				Map<String, Object> map=new HashMap<String, Object>();
+				map.put("label", category.getCategoryName());
+				map.put("value",category.getCategoryId());
+				list.add(map);
+			}
 			response = new ResponseEntity(new ResponseInfo(ResponseType.SUCCESS.getResponseMessage(),
-					ResponseType.SUCCESS.getResponseCode(), "", categoryList), HttpStatus.OK);
+					ResponseType.SUCCESS.getResponseCode(), "", list), HttpStatus.OK);
 			return response;
 		} catch (Exception e) {
 			response = new ResponseEntity(new ResponseInfo(ResponseType.ERROR.getResponseMessage(),

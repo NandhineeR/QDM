@@ -1,5 +1,7 @@
 package com.qdm.cs.usermanagement.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.qdm.cs.usermanagement.entity.Category;
 import com.qdm.cs.usermanagement.entity.Skills;
 import com.qdm.cs.usermanagement.response.ResponseInfo;
 import com.qdm.cs.usermanagement.response.ResponseType;
@@ -47,8 +48,15 @@ public class SkillsController {
 		ResponseEntity response = null;
 		try {
 			List<Skills> skillsList = skillsService.getSkillsList();
+			List<Object> skillList = new ArrayList<Object>();
+			for (Skills skills : skillsList) {
+				HashMap<String, Object> map = new HashMap<String, Object>();
+				map.put("label", skills.getSkillName());
+				map.put("value", skills.getSkillId());
+				skillList.add(map);
+			}
 			response = new ResponseEntity(new ResponseInfo(ResponseType.SUCCESS.getResponseMessage(),
-					ResponseType.SUCCESS.getResponseCode(), "", skillsList), HttpStatus.OK);
+					ResponseType.SUCCESS.getResponseCode(), "", skillList), HttpStatus.OK);
 			return response;
 		} catch (Exception e) {
 			response = new ResponseEntity(new ResponseInfo(ResponseType.ERROR.getResponseMessage(),

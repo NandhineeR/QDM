@@ -194,7 +194,6 @@ public class CareProviderController {
 				careProviderRecord.put("service", "");
 				careProviderRecord.put("incharge_name", careProviderList.getInChargesName());
 				careProviderRecord.put("mobile_no_isd_code", careProviderList.getMobileNoISDCode());
-				;
 				careProviderRecord.put("mobile_no", careProviderList.getMobileNo());
 				careProviderRecord.put("email", careProviderList.getEmailId());
 				careProviderRecord.put("address", careProviderList.getAddress());
