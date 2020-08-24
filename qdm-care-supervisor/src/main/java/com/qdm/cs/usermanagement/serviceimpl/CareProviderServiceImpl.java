@@ -17,13 +17,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.qdm.cs.usermanagement.dto.FormDataDTO;
-import com.qdm.cs.usermanagement.entity.CareGiver;
 import com.qdm.cs.usermanagement.entity.CareProvider;
 import com.qdm.cs.usermanagement.entity.Category;
+import com.qdm.cs.usermanagement.entity.Skills;
 import com.qdm.cs.usermanagement.entity.UploadProfile;
 import com.qdm.cs.usermanagement.enums.Status;
 import com.qdm.cs.usermanagement.repository.CareProviderRepository;
 import com.qdm.cs.usermanagement.repository.CategoryRepository;
+import com.qdm.cs.usermanagement.repository.SkillsRepository;
 import com.qdm.cs.usermanagement.repository.UploadProfileRepository;
 import com.qdm.cs.usermanagement.service.CareProviderService;
 
@@ -38,15 +39,18 @@ public class CareProviderServiceImpl implements CareProviderService {
 	CategoryRepository categoryRepository;
 	ModelMapper modelMapper;
 	UploadProfileRepository uploadProfileRepository;
+	SkillsRepository skillsRepository;
 
 	@Autowired
 	public CareProviderServiceImpl(CareProviderRepository careProviderRepository, CategoryRepository categoryRepository,
-			ModelMapper modelMapper, UploadProfileRepository uploadProfileRepository) {
+			ModelMapper modelMapper, UploadProfileRepository uploadProfileRepository,
+			SkillsRepository skillsRepository) {
 		super();
 		this.careProviderRepository = careProviderRepository;
 		this.categoryRepository = categoryRepository;
 		this.modelMapper = modelMapper;
 		this.uploadProfileRepository = uploadProfileRepository;
+		this.skillsRepository = skillsRepository;
 	}
 
 	@Override
@@ -128,28 +132,45 @@ public class CareProviderServiceImpl implements CareProviderService {
 		Optional<CareProvider> careProviderUpdateDate = careProviderRepository
 				.findById(formDataDTO.getCareProviderId());
 		if (careProviderUpdateDate.isPresent()) {
-			careProviderUpdateDate.get().setActiveStatus(formDataDTO.getActiveStatus() != null ? formDataDTO.getActiveStatus(): careProviderUpdateDate.get().getActiveStatus());
-			careProviderUpdateDate.get().setAddress(formDataDTO.getAddress()!=null ? formDataDTO.getAddress():careProviderUpdateDate.get().getAddress());
-			careProviderUpdateDate.get().setCareGiversCount(formDataDTO.getCareGiversCount()!=0 ? formDataDTO.getCareGiversCount():careProviderUpdateDate.get().getCareGiversCount());
-			careProviderUpdateDate.get().setCareProviderName(formDataDTO.getCareProviderName()!=null ? formDataDTO.getCareProviderName():careProviderUpdateDate.get().getCareProviderName());
-			careProviderUpdateDate.get().setCategory(formDataDTO.getCategory()!=null ? formDataDTO.getCategory():careProviderUpdateDate.get().getCategory());
-			careProviderUpdateDate.get().setEmailId(formDataDTO.getEmailId()!=null ? formDataDTO.getEmailId():careProviderUpdateDate.get().getEmailId());
-			careProviderUpdateDate.get().setInChargesName(formDataDTO.getInChargesName()!=null ? formDataDTO.getInChargesName():careProviderUpdateDate.get().getInChargesName());
-			careProviderUpdateDate.get().setMobileNo(formDataDTO.getMobileNo()!=0 ? formDataDTO.getMobileNo():careProviderUpdateDate.get().getMobileNo());
-			careProviderUpdateDate.get().setOfferings(formDataDTO.getOfferings()!=null ? formDataDTO.getOfferings():careProviderUpdateDate.get().getOfferings());
-			careProviderUpdateDate.get().setSkills(formDataDTO.getSkills()!=null ? formDataDTO.getSkills():careProviderUpdateDate.get().getSkills());
-			
+			careProviderUpdateDate.get()
+					.setActiveStatus(formDataDTO.getActiveStatus() != null ? formDataDTO.getActiveStatus()
+							: careProviderUpdateDate.get().getActiveStatus());
+			careProviderUpdateDate.get().setAddress(formDataDTO.getAddress() != null ? formDataDTO.getAddress()
+					: careProviderUpdateDate.get().getAddress());
+			careProviderUpdateDate.get()
+					.setCareGiversCount(formDataDTO.getCareGiversCount() != 0 ? formDataDTO.getCareGiversCount()
+							: careProviderUpdateDate.get().getCareGiversCount());
+			careProviderUpdateDate.get()
+					.setCareProviderName(formDataDTO.getCareProviderName() != null ? formDataDTO.getCareProviderName()
+							: careProviderUpdateDate.get().getCareProviderName());
+			careProviderUpdateDate.get().setCategory(formDataDTO.getCategory() != null ? formDataDTO.getCategory()
+					: careProviderUpdateDate.get().getCategory());
+			careProviderUpdateDate.get().setEmailId(formDataDTO.getEmailId() != null ? formDataDTO.getEmailId()
+					: careProviderUpdateDate.get().getEmailId());
+			careProviderUpdateDate.get()
+					.setInChargesName(formDataDTO.getInChargesName() != null ? formDataDTO.getInChargesName()
+							: careProviderUpdateDate.get().getInChargesName());
+			careProviderUpdateDate.get().setMobileNo(formDataDTO.getMobileNo() != 0 ? formDataDTO.getMobileNo()
+					: careProviderUpdateDate.get().getMobileNo());
+			careProviderUpdateDate.get().setOfferings(formDataDTO.getOfferings() != null ? formDataDTO.getOfferings()
+					: careProviderUpdateDate.get().getOfferings());
+			careProviderUpdateDate.get().setSkills(formDataDTO.getSkills() != null ? formDataDTO.getSkills()
+					: careProviderUpdateDate.get().getSkills());
+
 			if (formDataDTO.getUploadPhoto() != null) {
 				String fileName = StringUtils.cleanPath(formDataDTO.getUploadPhoto().getOriginalFilename());
 				try {
-					careProviderUpdateDate.get().setUploadPhoto(new UploadProfile(formDataDTO.getUploadPhoto().getOriginalFilename(),formDataDTO.getUploadPhoto().getContentType(),formDataDTO.getUploadPhoto().getBytes(), formDataDTO.getUploadPhoto().getSize()));
+					careProviderUpdateDate.get()
+							.setUploadPhoto(new UploadProfile(formDataDTO.getUploadPhoto().getOriginalFilename(),
+									formDataDTO.getUploadPhoto().getContentType(),
+									formDataDTO.getUploadPhoto().getBytes(), formDataDTO.getUploadPhoto().getSize()));
 				} catch (IOException e) {
 					log.info("Error Occured at UpdateCareGiver Photo Upload");
 					e.printStackTrace();
 				}
 				CareProvider careProviderUpdated = careProviderRepository.save(careProviderUpdateDate.get());
 				return careProviderUpdated;
-			}else {
+			} else {
 				careProviderUpdateDate.get().setUploadPhoto(careProviderUpdateDate.get().getUploadPhoto());
 			}
 		}
@@ -169,12 +190,23 @@ public class CareProviderServiceImpl implements CareProviderService {
 	@Override
 	public List<CareProvider> searchCareProvider(Integer pageNo, Integer pageSize, String careProviderName) {
 		Pageable paging = PageRequest.of(pageNo, pageSize);
-		Page<CareProvider> pagedResult = careProviderRepository.findByCareProviderName(careProviderName.toLowerCase(),paging);
+		Page<CareProvider> pagedResult = careProviderRepository.findByCareProviderName(careProviderName.toLowerCase(),
+				paging);
 		return pagedResult.hasContent() ? pagedResult.getContent() : new ArrayList<CareProvider>();
 	}
 
 	@Override
 	public List<CareProvider> searchAllCareProviderListCount(String careProviderName) {
 		return careProviderRepository.findByCareProviderName(careProviderName.toLowerCase());
+	}
+
+	@Override
+	public List<Skills> getSkillsListById(Collection<Integer> skills) {
+		List<Skills> data = new ArrayList<>();
+		for (Integer skillData : skills) {
+			Skills skillList = skillsRepository.findBySkillId(skillData);
+			data.add(skillList);
+		}
+		return data;
 	}
 }

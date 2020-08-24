@@ -19,10 +19,12 @@ import org.springframework.util.StringUtils;
 import com.qdm.cs.usermanagement.dto.FormDataDTO;
 import com.qdm.cs.usermanagement.entity.CareGiver;
 import com.qdm.cs.usermanagement.entity.Category;
+import com.qdm.cs.usermanagement.entity.Skills;
 import com.qdm.cs.usermanagement.entity.UploadProfile;
 import com.qdm.cs.usermanagement.enums.Status;
 import com.qdm.cs.usermanagement.repository.CareGiverRepository;
 import com.qdm.cs.usermanagement.repository.CategoryRepository;
+import com.qdm.cs.usermanagement.repository.SkillsRepository;
 import com.qdm.cs.usermanagement.repository.UploadProfileRepository;
 import com.qdm.cs.usermanagement.service.CareGiverService;
 
@@ -37,15 +39,18 @@ public class CareGiverServiceImpl implements CareGiverService {
 	CareGiverRepository careGiverRepository;
 	ModelMapper modelMapper;
 	UploadProfileRepository uploadProfileRepository;
+	SkillsRepository skillsRepository;
 
 	@Autowired
 	public CareGiverServiceImpl(CategoryRepository categoryRepository, CareGiverRepository careGiverRepository,
-			ModelMapper modelMapper, UploadProfileRepository uploadProfileRepository) {
+			ModelMapper modelMapper, UploadProfileRepository uploadProfileRepository,
+			SkillsRepository skillsRepository) {
 		super();
 		this.categoryRepository = categoryRepository;
 		this.careGiverRepository = careGiverRepository;
 		this.modelMapper = modelMapper;
 		this.uploadProfileRepository = uploadProfileRepository;
+		this.skillsRepository = skillsRepository;
 	}
 
 	@Override
@@ -106,7 +111,8 @@ public class CareGiverServiceImpl implements CareGiverService {
 						.build();
 				careGiver.setUploadPhoto(uploadProfile);
 			} catch (IOException e) {
-				log.error("Error Occured In CareGiversService AddCareGiver ProfileUpload With Id : " + careGiver.getCareGiverId());
+				log.error("Error Occured In CareGiversService AddCareGiver ProfileUpload With Id : "
+						+ careGiver.getCareGiverId());
 			}
 		}
 		return careGiverRepository.save(careGiver);
@@ -116,25 +122,38 @@ public class CareGiverServiceImpl implements CareGiverService {
 	public CareGiver updateCareGiver(FormDataDTO formDataDTO) {
 		Optional<CareGiver> careGiverUpdateDate = careGiverRepository.findById(formDataDTO.getCareGiverId());
 		if (careGiverUpdateDate.isPresent()) {
-			careGiverUpdateDate.get().setActiveStatus(formDataDTO.getActiveStatus() != null ? formDataDTO.getActiveStatus(): careGiverUpdateDate.get().getActiveStatus());
-			careGiverUpdateDate.get().setAddress(formDataDTO.getAddress() != null ? formDataDTO.getAddress(): careGiverUpdateDate.get().getAddress());
-			careGiverUpdateDate.get().setCareGiverName(formDataDTO.getCareGiverName() != null ? formDataDTO.getCareGiverName(): careGiverUpdateDate.get().getCareGiverName());
-			careGiverUpdateDate.get().setCategory(formDataDTO.getCategory() != null ? formDataDTO.getCategory(): careGiverUpdateDate.get().getCategory());
-			careGiverUpdateDate.get().setClientsCount(formDataDTO.getClientsCount() != 0 ? formDataDTO.getClientsCount(): careGiverUpdateDate.get().getClientsCount());
-			careGiverUpdateDate.get().setEmailId(formDataDTO.getEmailId() != null ? formDataDTO.getEmailId(): careGiverUpdateDate.get().getEmailId());
-			careGiverUpdateDate.get().setMobileNo(formDataDTO.getMobileNo() != 0 ? formDataDTO.getMobileNo(): careGiverUpdateDate.get().getMobileNo());
-			careGiverUpdateDate.get().setSkills(formDataDTO.getSkills() != null ? formDataDTO.getSkills() : careGiverUpdateDate.get().getSkills());
+			careGiverUpdateDate.get()
+					.setActiveStatus(formDataDTO.getActiveStatus() != null ? formDataDTO.getActiveStatus()
+							: careGiverUpdateDate.get().getActiveStatus());
+			careGiverUpdateDate.get().setAddress(formDataDTO.getAddress() != null ? formDataDTO.getAddress()
+					: careGiverUpdateDate.get().getAddress());
+			careGiverUpdateDate.get()
+					.setCareGiverName(formDataDTO.getCareGiverName() != null ? formDataDTO.getCareGiverName()
+							: careGiverUpdateDate.get().getCareGiverName());
+			careGiverUpdateDate.get().setCategory(formDataDTO.getCategory() != null ? formDataDTO.getCategory()
+					: careGiverUpdateDate.get().getCategory());
+			careGiverUpdateDate.get().setClientsCount(formDataDTO.getClientsCount() != 0 ? formDataDTO.getClientsCount()
+					: careGiverUpdateDate.get().getClientsCount());
+			careGiverUpdateDate.get().setEmailId(formDataDTO.getEmailId() != null ? formDataDTO.getEmailId()
+					: careGiverUpdateDate.get().getEmailId());
+			careGiverUpdateDate.get().setMobileNo(formDataDTO.getMobileNo() != 0 ? formDataDTO.getMobileNo()
+					: careGiverUpdateDate.get().getMobileNo());
+			careGiverUpdateDate.get().setSkills(
+					formDataDTO.getSkills() != null ? formDataDTO.getSkills() : careGiverUpdateDate.get().getSkills());
 			if (formDataDTO.getUploadPhoto() != null) {
 				String fileName = StringUtils.cleanPath(formDataDTO.getUploadPhoto().getOriginalFilename());
 				try {
-					careGiverUpdateDate.get().setUploadPhoto(new UploadProfile(formDataDTO.getUploadPhoto().getOriginalFilename(),formDataDTO.getUploadPhoto().getContentType(),formDataDTO.getUploadPhoto().getBytes(), formDataDTO.getUploadPhoto().getSize()));
+					careGiverUpdateDate.get()
+							.setUploadPhoto(new UploadProfile(formDataDTO.getUploadPhoto().getOriginalFilename(),
+									formDataDTO.getUploadPhoto().getContentType(),
+									formDataDTO.getUploadPhoto().getBytes(), formDataDTO.getUploadPhoto().getSize()));
 				} catch (IOException e) {
 					log.info("Error Occured at UpdateCareGiver Photo Upload");
 					e.printStackTrace();
 				}
 				CareGiver savedCareGiver = careGiverRepository.save(careGiverUpdateDate.get());
 				return savedCareGiver;
-			}else {
+			} else {
 				careGiverUpdateDate.get().setUploadPhoto(careGiverUpdateDate.get().getUploadPhoto());
 			}
 		}
@@ -161,6 +180,16 @@ public class CareGiverServiceImpl implements CareGiverService {
 	@Override
 	public List<CareGiver> searchAllCareGiversListCount(String careGiverName) {
 		return careGiverRepository.findByCareGiverName(careGiverName.toLowerCase());
+	}
+
+	@Override
+	public List<Skills> getSkillsListById(Collection<Integer> skills) {
+		List<Skills> data = new ArrayList<>();
+		for (Integer skillData : skills) {
+			Skills skillList = skillsRepository.findBySkillId(skillData);
+			data.add(skillList);
+		}
+		return data;
 	}
 
 }

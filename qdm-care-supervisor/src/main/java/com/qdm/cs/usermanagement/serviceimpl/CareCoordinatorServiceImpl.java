@@ -18,12 +18,13 @@ import org.springframework.util.StringUtils;
 
 import com.qdm.cs.usermanagement.dto.FormDataDTO;
 import com.qdm.cs.usermanagement.entity.CareCoordinator;
-import com.qdm.cs.usermanagement.entity.CareGiver;
 import com.qdm.cs.usermanagement.entity.Category;
+import com.qdm.cs.usermanagement.entity.Skills;
 import com.qdm.cs.usermanagement.entity.UploadProfile;
 import com.qdm.cs.usermanagement.enums.Status;
 import com.qdm.cs.usermanagement.repository.CareCoordinatorRepository;
 import com.qdm.cs.usermanagement.repository.CategoryRepository;
+import com.qdm.cs.usermanagement.repository.SkillsRepository;
 import com.qdm.cs.usermanagement.repository.UploadProfileRepository;
 import com.qdm.cs.usermanagement.service.CareCoordinatorService;
 
@@ -38,16 +39,18 @@ public class CareCoordinatorServiceImpl implements CareCoordinatorService {
 	CategoryRepository categoryRepository;
 	ModelMapper modelMapper;
 	UploadProfileRepository uploadProfileRepository;
+	SkillsRepository skillsRepository;
 
 	@Autowired
 	public CareCoordinatorServiceImpl(CareCoordinatorRepository careCoordinatorRepository,
 			CategoryRepository categoryRepository, ModelMapper modelMapper,
-			UploadProfileRepository uploadProfileRepository) {
+			UploadProfileRepository uploadProfileRepository, SkillsRepository skillsRepository) {
 		super();
 		this.careCoordinatorRepository = careCoordinatorRepository;
 		this.categoryRepository = categoryRepository;
 		this.modelMapper = modelMapper;
 		this.uploadProfileRepository = uploadProfileRepository;
+		this.skillsRepository = skillsRepository;
 	}
 
 	@Override
@@ -116,7 +119,8 @@ public class CareCoordinatorServiceImpl implements CareCoordinatorService {
 						.build();
 				careCoordinator.setUploadPhoto(uploadProfile);
 			} catch (IOException e) {
-				log.error("Error Occured In Care Coordinator Service Add Care Coordinator With Id " + careCoordinator.getCareCoordinatorId());
+				log.error("Error Occured In Care Coordinator Service Add Care Coordinator With Id "
+						+ careCoordinator.getCareCoordinatorId());
 			}
 		}
 		return careCoordinatorRepository.save(careCoordinator);
@@ -127,27 +131,44 @@ public class CareCoordinatorServiceImpl implements CareCoordinatorService {
 		Optional<CareCoordinator> careCoordinatorUpdateData = careCoordinatorRepository
 				.findById(formDataDTO.getCareCoordinatorId());
 		if (careCoordinatorUpdateData.isPresent()) {
-			careCoordinatorUpdateData.get().setActiveStatus(formDataDTO.getActiveStatus() != null ? formDataDTO.getActiveStatus(): careCoordinatorUpdateData.get().getActiveStatus());
-			careCoordinatorUpdateData.get().setAddress(formDataDTO.getAddress() != null ? formDataDTO.getAddress(): careCoordinatorUpdateData.get().getAddress());
-			careCoordinatorUpdateData.get().setCareCoordinatorName(formDataDTO.getCareCoordinatorName() != null ? formDataDTO.getCareCoordinatorName(): careCoordinatorUpdateData.get().getCareCoordinatorName());
-			careCoordinatorUpdateData.get().setCareGiversCount(formDataDTO.getCareGiversCount() != 0 ? formDataDTO.getCareGiversCount(): careCoordinatorUpdateData.get().getCareGiversCount());
-			careCoordinatorUpdateData.get().setCategory(formDataDTO.getCategory()!=null ? formDataDTO.getCategory(): careCoordinatorUpdateData.get().getCategory());
-			careCoordinatorUpdateData.get().setClientsCount(formDataDTO.getClientsCount() != 0 ? formDataDTO.getClientsCount(): careCoordinatorUpdateData.get().getClientsCount());
-			careCoordinatorUpdateData.get().setEmailId(formDataDTO.getEmailId() != null ? formDataDTO.getEmailId(): careCoordinatorUpdateData.get().getEmailId());
-			careCoordinatorUpdateData.get().setMobileNo(formDataDTO.getMobileNo() != 0 ? formDataDTO.getMobileNo(): careCoordinatorUpdateData.get().getMobileNo());
-			careCoordinatorUpdateData.get().setSkills(formDataDTO.getSkills() != null ? formDataDTO.getSkills(): careCoordinatorUpdateData.get().getSkills());
-		
+			careCoordinatorUpdateData.get()
+					.setActiveStatus(formDataDTO.getActiveStatus() != null ? formDataDTO.getActiveStatus()
+							: careCoordinatorUpdateData.get().getActiveStatus());
+			careCoordinatorUpdateData.get().setAddress(formDataDTO.getAddress() != null ? formDataDTO.getAddress()
+					: careCoordinatorUpdateData.get().getAddress());
+			careCoordinatorUpdateData.get().setCareCoordinatorName(
+					formDataDTO.getCareCoordinatorName() != null ? formDataDTO.getCareCoordinatorName()
+							: careCoordinatorUpdateData.get().getCareCoordinatorName());
+			careCoordinatorUpdateData.get()
+					.setCareGiversCount(formDataDTO.getCareGiversCount() != 0 ? formDataDTO.getCareGiversCount()
+							: careCoordinatorUpdateData.get().getCareGiversCount());
+			careCoordinatorUpdateData.get().setCategory(formDataDTO.getCategory() != null ? formDataDTO.getCategory()
+					: careCoordinatorUpdateData.get().getCategory());
+			careCoordinatorUpdateData.get()
+					.setClientsCount(formDataDTO.getClientsCount() != 0 ? formDataDTO.getClientsCount()
+							: careCoordinatorUpdateData.get().getClientsCount());
+			careCoordinatorUpdateData.get().setEmailId(formDataDTO.getEmailId() != null ? formDataDTO.getEmailId()
+					: careCoordinatorUpdateData.get().getEmailId());
+			careCoordinatorUpdateData.get().setMobileNo(formDataDTO.getMobileNo() != 0 ? formDataDTO.getMobileNo()
+					: careCoordinatorUpdateData.get().getMobileNo());
+			careCoordinatorUpdateData.get().setSkills(formDataDTO.getSkills() != null ? formDataDTO.getSkills()
+					: careCoordinatorUpdateData.get().getSkills());
+
 			if (formDataDTO.getUploadPhoto() != null) {
 				String fileName = StringUtils.cleanPath(formDataDTO.getUploadPhoto().getOriginalFilename());
 				try {
-					careCoordinatorUpdateData.get().setUploadPhoto(new UploadProfile(formDataDTO.getUploadPhoto().getOriginalFilename(),formDataDTO.getUploadPhoto().getContentType(),formDataDTO.getUploadPhoto().getBytes(), formDataDTO.getUploadPhoto().getSize()));
+					careCoordinatorUpdateData.get()
+							.setUploadPhoto(new UploadProfile(formDataDTO.getUploadPhoto().getOriginalFilename(),
+									formDataDTO.getUploadPhoto().getContentType(),
+									formDataDTO.getUploadPhoto().getBytes(), formDataDTO.getUploadPhoto().getSize()));
 				} catch (IOException e) {
 					log.info("Error Occured at UpdateCareCoordinator Photo Upload");
 					e.printStackTrace();
 				}
-				CareCoordinator careCoordinatorUpdated = careCoordinatorRepository.save(careCoordinatorUpdateData.get());
+				CareCoordinator careCoordinatorUpdated = careCoordinatorRepository
+						.save(careCoordinatorUpdateData.get());
 				return careCoordinatorUpdated;
-			}else {
+			} else {
 				careCoordinatorUpdateData.get().setUploadPhoto(careCoordinatorUpdateData.get().getUploadPhoto());
 			}
 		}
@@ -167,12 +188,23 @@ public class CareCoordinatorServiceImpl implements CareCoordinatorService {
 	@Override
 	public List<CareCoordinator> searchCareCoordinator(Integer pageNo, Integer pageSize, String careCoordinatorName) {
 		Pageable paging = PageRequest.of(pageNo, pageSize);
-		Page<CareCoordinator> pagedResult = careCoordinatorRepository.findByCareCoordinatorName(careCoordinatorName.toLowerCase(),paging);
+		Page<CareCoordinator> pagedResult = careCoordinatorRepository
+				.findByCareCoordinatorName(careCoordinatorName.toLowerCase(), paging);
 		return pagedResult.hasContent() ? pagedResult.getContent() : new ArrayList<CareCoordinator>();
 	}
 
 	@Override
 	public List<CareCoordinator> searchCareCoordinatorListCount(String careCoordinatorName) {
 		return careCoordinatorRepository.findByCareCoordinatorName(careCoordinatorName.toLowerCase());
+	}
+
+	@Override
+	public List<Skills> getSkillsListById(Collection<Integer> skills) {
+		List<Skills> data = new ArrayList<>();
+		for (Integer skillData : skills) {
+			Skills skillList = skillsRepository.findBySkillId(skillData);
+			data.add(skillList);
+		}
+		return data;
 	}
 }

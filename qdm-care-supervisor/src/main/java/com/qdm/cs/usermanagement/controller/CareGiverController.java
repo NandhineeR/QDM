@@ -31,6 +31,7 @@ import com.qdm.cs.usermanagement.constants.ResponseConstants;
 import com.qdm.cs.usermanagement.dto.FormDataDTO;
 import com.qdm.cs.usermanagement.entity.CareGiver;
 import com.qdm.cs.usermanagement.entity.Category;
+import com.qdm.cs.usermanagement.entity.Skills;
 import com.qdm.cs.usermanagement.entity.UploadProfile;
 import com.qdm.cs.usermanagement.enums.Status;
 import com.qdm.cs.usermanagement.response.ResponseInfo;
@@ -68,7 +69,8 @@ public class CareGiverController {
 
 	@GetMapping(value = "/list/get", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<?> getCareGiver(@RequestParam(defaultValue = "0") Integer pageNo,
-			@RequestParam(defaultValue = "10") Integer pageSize, @RequestParam(value = "careGiverName",required = false) String careGiverName) {
+			@RequestParam(defaultValue = "10") Integer pageSize,
+			@RequestParam(value = "careGiverName", required = false) String careGiverName) {
 		ResponseEntity response = null;
 		List<CareGiver> careGiverList;
 		List<CareGiver> getAllCareGiversListCount;
@@ -151,6 +153,17 @@ public class CareGiverController {
 					}
 				}
 
+				List<Skills> skills = careGiverService.getSkillsListById(careGiverList.getSkills());
+				List<Object> skillsList = new ArrayList<>();
+				for (Skills skillsData : skills) {
+					if (skillsData != null) {
+						Map<String, Object> skillsMap = new HashMap<>();
+						skillsMap.put("label", skillsData.getSkillName());
+						skillsMap.put("value", skillsData.getSkillId());
+						skillsList.add(skillsMap);
+					}
+				}
+
 				careGiverRecord.put("id", careGiverList.getCareGiverId());
 				careGiverRecord.put("name", careGiverList.getCareGiverName());
 				careGiverRecord.put("isactive", careGiverList.getActiveStatus());
@@ -172,7 +185,7 @@ public class CareGiverController {
 				careGiverRecord.put("upcoming_activities_count", 0);
 				careGiverRecord.put("average_rating", 0);
 				careGiverRecord.put("upcoming_activities_count", 0);
-				careGiverRecord.put("skills", careGiverList.getSkills());
+				careGiverRecord.put("skills", skillsList);
 				careGiverRecord.put("category", categoryList);
 				careGiverRecord.put("care_provider", "");
 

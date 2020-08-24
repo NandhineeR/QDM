@@ -31,7 +31,7 @@ public class FormDataDTO {
 	long mobileNo;
 	String emailId;
 	String address;
-	List<String> skills;
+	List<Integer> skills;
 	List<String> offerings;
 	Status activeStatus;
 	int clientsCount;

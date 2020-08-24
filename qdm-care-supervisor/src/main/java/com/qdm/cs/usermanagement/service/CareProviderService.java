@@ -8,6 +8,7 @@ import java.util.Optional;
 import com.qdm.cs.usermanagement.dto.FormDataDTO;
 import com.qdm.cs.usermanagement.entity.CareProvider;
 import com.qdm.cs.usermanagement.entity.Category;
+import com.qdm.cs.usermanagement.entity.Skills;
 import com.qdm.cs.usermanagement.entity.UploadProfile;
 import com.qdm.cs.usermanagement.enums.Status;
 
@@ -36,5 +37,7 @@ public interface CareProviderService {
 	List<CareProvider> searchCareProvider(Integer pageNo, Integer pageSize, String careProviderName);
 
 	List<CareProvider> searchAllCareProviderListCount(String careProviderName);
+
+	List<Skills> getSkillsListById(Collection<Integer> skills);
 
 }

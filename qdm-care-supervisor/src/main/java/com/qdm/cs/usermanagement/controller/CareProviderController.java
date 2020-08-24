@@ -31,6 +31,7 @@ import com.qdm.cs.usermanagement.constants.ResponseConstants;
 import com.qdm.cs.usermanagement.dto.FormDataDTO;
 import com.qdm.cs.usermanagement.entity.CareProvider;
 import com.qdm.cs.usermanagement.entity.Category;
+import com.qdm.cs.usermanagement.entity.Skills;
 import com.qdm.cs.usermanagement.entity.UploadProfile;
 import com.qdm.cs.usermanagement.enums.Status;
 import com.qdm.cs.usermanagement.response.ResponseInfo;
@@ -165,6 +166,17 @@ public class CareProviderController {
 						categoryList.add(categoryMap);
 					}
 				}
+				
+				List<Skills> skills = careProviderService.getSkillsListById(careProviderList.getSkills());
+				List<Object> skillsList = new ArrayList<>();
+				for (Skills skillsData : skills) {
+					if (skillsData != null) {
+						Map<String, Object> skillsMap = new HashMap<>();
+						skillsMap.put("label", skillsData.getSkillName());
+						skillsMap.put("value", skillsData.getSkillId());
+						skillsList.add(skillsMap);
+					}
+				}
 
 				System.out.println("Offers " + careProviderList.getOfferings() + "  " + careProviderList.getSkills());
 				careProviderRecord.put("id", careProviderList.getCareProviderId());
@@ -189,7 +201,7 @@ public class CareProviderController {
 				careProviderRecord.put("product_list", "");
 				careProviderRecord.put("offerings_list", careProviderList.getOfferings());
 				careProviderRecord.put("care_giver_count", careProviderList.getCareGiversCount());
-				careProviderRecord.put("skills", careProviderList.getSkills());
+				careProviderRecord.put("skills", skillsList);
 				careProviderRecord.put("category", categoryList);
 
 				log.info("Get CareProvider Records By CareProviderId " + careProviderId);

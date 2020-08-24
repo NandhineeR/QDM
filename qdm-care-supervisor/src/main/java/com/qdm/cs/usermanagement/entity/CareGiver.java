@@ -48,7 +48,7 @@ public class CareGiver extends BaseEntity implements Serializable {
 	@Basic(fetch = FetchType.EAGER)
 	@Column(name = "Skills")
 	@JoinTable(name = "TB_GIVER_SKILLS")
-	Collection<String> skills;
+	Collection<Integer> skills;
 
 	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinColumn(name = "Upload_Photo_Id")

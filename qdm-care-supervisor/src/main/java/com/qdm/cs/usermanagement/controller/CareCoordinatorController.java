@@ -31,6 +31,7 @@ import com.qdm.cs.usermanagement.constants.ResponseConstants;
 import com.qdm.cs.usermanagement.dto.FormDataDTO;
 import com.qdm.cs.usermanagement.entity.CareCoordinator;
 import com.qdm.cs.usermanagement.entity.Category;
+import com.qdm.cs.usermanagement.entity.Skills;
 import com.qdm.cs.usermanagement.entity.UploadProfile;
 import com.qdm.cs.usermanagement.enums.Status;
 import com.qdm.cs.usermanagement.response.ResponseInfo;
@@ -164,6 +165,18 @@ public class CareCoordinatorController {
 						categoryList.add(categoryMap);
 					}
 				}
+				
+				List<Skills> skills = careCoordinatorService.getSkillsListById(careCoordinatorData.getSkills());
+				List<Object> skillsList = new ArrayList<>();
+				for (Skills skillsData : skills) {
+					if (skillsData != null) {
+						Map<String, Object> skillsMap = new HashMap<>();
+						skillsMap.put("label", skillsData.getSkillName());
+						skillsMap.put("value", skillsData.getSkillId());
+						skillsList.add(skillsMap);
+					}
+				}
+				
 				careCoordinatorRecord.put("id", careCoordinatorData.getCareCoordinatorId());
 				careCoordinatorRecord.put("name", careCoordinatorData.getCareCoordinatorName());
 				careCoordinatorRecord.put("isactive", careCoordinatorData.getActiveStatus());
@@ -185,7 +198,7 @@ public class CareCoordinatorController {
 				careCoordinatorRecord.put("upcoming_activities_count", 0);
 				careCoordinatorRecord.put("average_rating", 0);
 				careCoordinatorRecord.put("upcoming_activities_count", 0);
-				careCoordinatorRecord.put("skills", careCoordinatorData.getSkills());
+				careCoordinatorRecord.put("skills", skillsList);
 				careCoordinatorRecord.put("category", categoryList);
 				careCoordinatorRecord.put("care_provider", "");
 
