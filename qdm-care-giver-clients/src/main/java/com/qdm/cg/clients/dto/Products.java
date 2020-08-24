@@ -1,4 +1,4 @@
-package com.qdm.cg.clients.response;
+package com.qdm.cg.clients.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,11 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseInfo {
-
-	private String status;
-	private int status_code;
-	private String message;
-	private Object data;
-
+public class Products {
+	 private String product_name;
+     private String product_desc;
+     private String product_code;
 }

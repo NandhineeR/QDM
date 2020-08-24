@@ -1,4 +1,4 @@
-package com.qdm.cg.clients.response;
+package com.qdm.cg.clients.exceptionhandler;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseInfo {
+public class ErrorResponse {
 
 	private String status;
-	private int status_code;
+	private String status_code;
 	private String message;
-	private Object data;
+//	private List<String> details;
 
 }
