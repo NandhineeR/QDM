@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class TimeLine {
 	private String status;
 	private String date_time;
-	private boolean is_completed;
+	private Boolean is_completed;
 }

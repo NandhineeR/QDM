@@ -1,7 +1,5 @@
 package com.qdm.cg.clients.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,9 +36,13 @@ public class ManageClientsController {
 		return new ResponseEntity<Object>(responseinfo, HttpStatus.OK);
 	}
 
-	@PutMapping("/issues/details/get")
-	public List<String> getDetailsList(@RequestBody IssueStatus issueStatus) {
-		return null;
+	@PutMapping("/issues/status/modify")
+	public ResponseEntity<?> getDetailsList(@RequestBody IssueStatus issueStatus) {
+		ResponseInfo responseinfo = new ResponseInfo();
+		responseinfo.setStatus_code(200);
+		responseinfo.setStatus("Success");
+		responseinfo.setMessage("");
+		return new ResponseEntity<Object>(responseinfo, HttpStatus.OK);
 	}
 
 	@GetMapping("/recommendations/details/get")
@@ -54,12 +56,12 @@ public class ManageClientsController {
 		ResponseInfo responseinfo = manageClientService.getRecommendedProductList();
 		return new ResponseEntity<Object>(responseinfo, HttpStatus.OK);
 	}
+
 	@GetMapping("/recommendations/products/track/get")
 	public ResponseEntity<?> getRecommendationsProductsTrack(@RequestParam String clientId) {
 		ResponseInfo responseinfo = manageClientService.getRecommendedProductTrack();
 		return new ResponseEntity<Object>(responseinfo, HttpStatus.OK);
 	}
-	
 
 	@GetMapping("/products/ratings/get")
 	public ResponseEntity<?> getRatingsList(@RequestParam String productId) {
