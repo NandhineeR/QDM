@@ -1,6 +1,9 @@
 package com.qdm.cg.clients.serviceimpl;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -11,6 +14,7 @@ import com.qdm.cg.clients.dto.ClientActivitySummaryDto;
 import com.qdm.cg.clients.dto.ClientInfoDto;
 import com.qdm.cg.clients.dto.ClientReportResponse;
 import com.qdm.cg.clients.dto.Equipment;
+import com.qdm.cg.clients.dto.IssueDetailDto;
 import com.qdm.cg.clients.dto.IssueDto;
 import com.qdm.cg.clients.dto.IssueListResponse;
 import com.qdm.cg.clients.dto.ProductRatingDto;
@@ -36,6 +40,16 @@ public class ManageClientService {
 		reportsList.add(new ReportsDto("Health Reports", 2, 2));
 		return ResponseInfo.builder().status("Success").status_code(200).message("")
 				.data(ClientReportResponse.builder().reports(reportsList).total_reports(reportsList.size()).build())
+				.build();
+	}
+
+	public ResponseInfo getIssueDetail() {
+
+		return ResponseInfo.builder().status("Success").status_code(200).message("")
+				.data(IssueDetailDto.builder().client_phone_no("9876543210").issue_id("#ICG12089")
+						.issued_product("Physio-ultra(Monthly)").issued_client_name("")
+						.issued_time("26-08-2020 17:02:09").issue_type("")
+						.issue_title("Having trouble with access service").build())
 				.build();
 	}
 
@@ -90,14 +104,52 @@ public class ManageClientService {
 
 	}
 
-	public ResponseInfo getClientActivity() {
+	public ResponseInfo getClientActivity(String event) {
+
 		ClientActivityDto clientInfo = new ClientActivityDto(1, "Pre-Assessment tips to Mia", "Mia Queen",
-				"08-24-2020");
+				"26-08-2020 17:02:09");
+		ClientActivityDto clientInfo1 = new ClientActivityDto(2, "Pre-Assessment tips to Mia2", "Mia Queen",
+				"26-08-2020 15:02:09");
+		ClientActivityDto clientInfo2 = new ClientActivityDto(3, "Pre-Assessment tips to Mia3", "Mia Queen",
+				"25-08-2020 17:02:09");
 		List<ClientActivityDto> activityList = new ArrayList<ClientActivityDto>();
 		activityList.add(clientInfo);
-		return ResponseInfo.builder().status("Success").status_code(200).message("")
-				.data(ClientActivityResponse.builder().activities(activityList).build()).build();
+		activityList.add(clientInfo1);
+		activityList.add(clientInfo2);
+		if (event == null) {
+			return ResponseInfo.builder().status("Success").status_code(200).message("")
+					.data(ClientActivityResponse.builder().activities(activityList).build()).build();
+		}
+		List<ClientActivityDto> pastActivityList = new ArrayList<ClientActivityDto>();
+		List<ClientActivityDto> upcomingActivityList = new ArrayList<ClientActivityDto>();
+		String date = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date());
+		SimpleDateFormat sdfo = new SimpleDateFormat("yyyy-MM-dd");
 
+		for (ClientActivityDto activity : activityList) {
+			try {
+				Date d1 = sdfo.parse(date);
+				Date d2 = sdfo.parse(activity.getDate_time());
+				if (d1.compareTo(d2) > 0) {
+					pastActivityList.add(activity);
+				} else {
+					upcomingActivityList.add(activity);
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if ("past".equals(event)) {
+			return ResponseInfo.builder().status("Success").status_code(200).message("")
+					.data(ClientActivityResponse.builder().activities(pastActivityList).build()).build();
+
+		} else if ("upcoming".equals(event)) {
+			return ResponseInfo.builder().status("Success").status_code(200).message("")
+					.data(ClientActivityResponse.builder().activities(upcomingActivityList).build()).build();
+
+		}
+		return null;
+	
 	}
 
 	public ResponseInfo getRecommendedProductList() {
@@ -128,5 +180,4 @@ public class ManageClientService {
 		return ResponseInfo.builder().status("Success").status_code(200).message("").data(response).build();
 
 	}
-
 }

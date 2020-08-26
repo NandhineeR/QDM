@@ -37,7 +37,6 @@ public class DatasourceConfig {
 			@Qualifier("dataSource") DataSource dataSource) {
 		HashMap<String, Object> properties = new HashMap<>();
 		properties.put("hibernate.hbm2ddl.auto", "update");
-		
 		properties.put("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
 		return builder.dataSource(dataSource).properties(properties).packages("com.qdm.cg.clients.entity")
 				.persistenceUnit("Clients").build();

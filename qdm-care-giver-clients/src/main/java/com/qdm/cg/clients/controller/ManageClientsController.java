@@ -36,6 +36,12 @@ public class ManageClientsController {
 		return new ResponseEntity<Object>(responseinfo, HttpStatus.OK);
 	}
 
+	@GetMapping("/issues/detail/get")
+	public ResponseEntity<?> getIssueDetail(@RequestParam String issueId) {
+		ResponseInfo responseinfo = manageClientService.getIssueDetail();
+		return new ResponseEntity<Object>(responseinfo, HttpStatus.OK);
+	}
+
 	@PutMapping("/issues/status/modify")
 	public ResponseEntity<?> getDetailsList(@RequestBody IssueStatus issueStatus) {
 		ResponseInfo responseinfo = new ResponseInfo();
@@ -76,8 +82,8 @@ public class ManageClientsController {
 	}
 
 	@GetMapping("/activities/get")
-	public ResponseEntity<?> getActivity(@RequestParam String clientId) {
-		ResponseInfo responseinfo = manageClientService.getClientActivity();
+	public ResponseEntity<?> getActivity(@RequestParam String clientId, @RequestParam(required = false) String event) {
+		ResponseInfo responseinfo = manageClientService.getClientActivity(event);
 		return new ResponseEntity<Object>(responseinfo, HttpStatus.OK);
 	}
 }
