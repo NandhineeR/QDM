@@ -70,7 +70,7 @@ public class ManageClientsController {
 	}
 
 	@GetMapping("/products/ratings/get")
-	public ResponseEntity<?> getRatingsList(@RequestParam String productId) {
+	public ResponseEntity<?> getRatingsList(@RequestParam String clientId) {
 		ResponseInfo responseinfo = manageClientService.getProductRatings();
 		return new ResponseEntity<Object>(responseinfo, HttpStatus.OK);
 	}

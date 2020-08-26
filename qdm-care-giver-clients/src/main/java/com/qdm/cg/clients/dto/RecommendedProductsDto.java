@@ -14,4 +14,6 @@ public class RecommendedProductsDto {
 	private int product_id;
 	private String product_price;
 	private String current_status;
+	private String current_status_date;
+	private String product_image;
 }

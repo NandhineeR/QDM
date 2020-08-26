@@ -153,15 +153,13 @@ public class ManageClientService {
 	}
 
 	public ResponseInfo getRecommendedProductList() {
-		RecommendedProductsDto recommendedProduct = new RecommendedProductsDto("Zerostat spacer", 1, "MYR 432",
-				"Recommended on July 04");
+		RecommendedProductsDto recommendedProduct=new RecommendedProductsDto("Ramsons Angel Nebulizer EBS 028933", 1, "MYR 432", "Purchased", "26-08-2020 15:02:09", "https://picsum.photos/200/300?random=1");
 		// RecommendedProductsResponse
 		List<RecommendedProductsDto> recommendedProductList = new ArrayList<RecommendedProductsDto>();
 		recommendedProductList.add(recommendedProduct);
 		return ResponseInfo.builder().status("Success").status_code(200).message("")
 				.data(RecommendedProductsResponse.builder().recommended_products_list(recommendedProductList).build())
 				.build();
-
 	}
 
 	public ResponseInfo getRecommendedProductTrack() {
