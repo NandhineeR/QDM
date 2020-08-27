@@ -29,6 +29,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.qdm.cs.usermanagement.constants.ResponseConstants;
 import com.qdm.cs.usermanagement.dto.FormDataDTO;
+import com.qdm.cs.usermanagement.dto.ProductList;
 import com.qdm.cs.usermanagement.entity.CareProvider;
 import com.qdm.cs.usermanagement.entity.Category;
 import com.qdm.cs.usermanagement.entity.Skills;
@@ -166,6 +167,11 @@ public class CareProviderController {
 						categoryList.add(categoryMap);
 					}
 				}
+				List<ProductList> productList=new ArrayList<>();
+				productList.add(new ProductList(1001, "Mirama Case"));
+				productList.add(new ProductList(1002,"Craft Co-Wellness"));
+				productList.add(new ProductList(1003,"Carehub"));
+				productList.add(new ProductList(1004,"UMMC"));
 				
 				List<Skills> skills = careProviderService.getSkillsListById(careProviderList.getSkills());
 				List<Object> skillsList = new ArrayList<>();
@@ -197,7 +203,7 @@ public class CareProviderController {
 				careProviderRecord.put("mobile_no", careProviderList.getMobileNo());
 				careProviderRecord.put("email", careProviderList.getEmailId());
 				careProviderRecord.put("address", careProviderList.getAddress());
-				careProviderRecord.put("product_list", "");
+				careProviderRecord.put("product_list", productList);
 				careProviderRecord.put("offerings_list", careProviderList.getOfferings());
 				careProviderRecord.put("care_giver_count", careProviderList.getCareGiversCount());
 				careProviderRecord.put("skills", skillsList);

@@ -28,7 +28,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.qdm.cs.usermanagement.constants.ResponseConstants;
+import com.qdm.cs.usermanagement.dto.CareProviderList;
 import com.qdm.cs.usermanagement.dto.FormDataDTO;
+import com.qdm.cs.usermanagement.dto.LabelValuePair;
 import com.qdm.cs.usermanagement.entity.CareGiver;
 import com.qdm.cs.usermanagement.entity.Category;
 import com.qdm.cs.usermanagement.entity.Skills;
@@ -176,7 +178,14 @@ public class CareGiverController {
 					careGiverRecord.put("profile_pic", "");
 
 				}
-
+				
+				List<LabelValuePair> careProviderCategoryList=new ArrayList<>();
+				careProviderCategoryList.add(new LabelValuePair(1001, "HealthCare"));
+				careProviderCategoryList.add(new LabelValuePair(1002, "Physiotheraphy"));
+				
+				List<CareProviderList> careProviderList=new ArrayList<CareProviderList>();
+				careProviderList.add(new CareProviderList(1, "CareProvider1",careProviderCategoryList));
+				
 				careGiverRecord.put("mobile_no_isd_code", careGiverList.getMobileNoISDCode());
 				careGiverRecord.put("mobile_no", careGiverList.getMobileNo());
 				careGiverRecord.put("email", careGiverList.getEmailId());
@@ -187,7 +196,7 @@ public class CareGiverController {
 				careGiverRecord.put("upcoming_activities_count", 0);
 				careGiverRecord.put("skills", skillsList);
 				careGiverRecord.put("category", categoryList);
-				careGiverRecord.put("care_provider", "");
+				careGiverRecord.put("care_provider", careProviderList);
 
 				log.info("Get CareGiver Records By CareGiverId " + careGiverId);
 				response = new ResponseEntity(new ResponseInfo(ResponseType.SUCCESS.getResponseMessage(),
