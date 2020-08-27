@@ -14,5 +14,6 @@ public class ClientActivityDto {
 	private String activity_name;
 	private String client_name;
 	private String date_time;
+	private Boolean is_attended;
 
 }
