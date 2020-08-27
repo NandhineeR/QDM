@@ -107,9 +107,9 @@ public class ManageClientService {
 	public ResponseInfo getClientActivity(String event) {
 
 		ClientActivityDto clientInfo = new ClientActivityDto(1, "Pre-Assessment tips to Mia", "Mia Queen",
-				"27-08-2020 17:02:09",false);
+				"27-09-2020 17:02:09",false);
 		ClientActivityDto clientInfo1 = new ClientActivityDto(2, "Pre-Assessment tips to Mia2", "Mia Queen",
-				"27-08-2020 15:02:09",false);
+				"27-10-2020 15:02:09",false);
 		ClientActivityDto clientInfo2 = new ClientActivityDto(3, "Pre-Assessment tips to Mia3", "Mia Queen",
 				"26-08-2020 17:02:09",true);
 		ClientActivityDto clientInfo3 = new ClientActivityDto(4, "Pre-Assessment tips to Mia4", "Mia Queen",
