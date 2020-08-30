@@ -132,6 +132,8 @@ public class CareGiverServiceImpl implements CareGiverService {
 							: careGiverUpdateDate.get().getCareGiverName());
 			careGiverUpdateDate.get().setCategory(formDataDTO.getCategory() != null ? formDataDTO.getCategory()
 					: careGiverUpdateDate.get().getCategory());
+			careGiverUpdateDate.get().setCareprovider(formDataDTO.getCareprovider() != null ? formDataDTO.getCareprovider()
+					: careGiverUpdateDate.get().getCareprovider());
 			careGiverUpdateDate.get().setClientsCount(formDataDTO.getClientsCount() != 0 ? formDataDTO.getClientsCount()
 					: careGiverUpdateDate.get().getClientsCount());
 			careGiverUpdateDate.get().setEmailId(formDataDTO.getEmailId() != null ? formDataDTO.getEmailId()

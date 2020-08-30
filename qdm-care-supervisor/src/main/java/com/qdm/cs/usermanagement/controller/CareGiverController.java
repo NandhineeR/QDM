@@ -32,6 +32,7 @@ import com.qdm.cs.usermanagement.dto.CareProviderList;
 import com.qdm.cs.usermanagement.dto.FormDataDTO;
 import com.qdm.cs.usermanagement.dto.LabelValuePair;
 import com.qdm.cs.usermanagement.entity.CareGiver;
+import com.qdm.cs.usermanagement.entity.CareProvider;
 import com.qdm.cs.usermanagement.entity.Category;
 import com.qdm.cs.usermanagement.entity.Skills;
 import com.qdm.cs.usermanagement.entity.UploadProfile;
@@ -39,6 +40,7 @@ import com.qdm.cs.usermanagement.enums.Status;
 import com.qdm.cs.usermanagement.response.ResponseInfo;
 import com.qdm.cs.usermanagement.response.ResponseType;
 import com.qdm.cs.usermanagement.service.CareGiverService;
+import com.qdm.cs.usermanagement.service.CareProviderService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,6 +52,9 @@ public class CareGiverController {
 
 	@Autowired
 	CareGiverService careGiverService;
+
+	@Autowired
+	CareProviderService careProviderService;
 
 	@PostMapping(value = "/add", produces = { MediaType.APPLICATION_JSON_VALUE }, consumes = {
 			MediaType.MULTIPART_FORM_DATA_VALUE })
@@ -119,6 +124,16 @@ public class CareGiverController {
 				} else {
 					careGiverDatas.put("profile_pic", "");
 				}
+				
+				//CareProvider
+				List<CareProviderList> careProviderList = new ArrayList<CareProviderList>();
+				for (Long careProviderId : careGiver.getCareprovider()) {
+					Optional<CareProvider> careProvider = careProviderService.getCareProviderById(careProviderId);
+					careProviderList.add(new CareProviderList(careProvider.get().getCareProviderId(),
+							careProvider.get().getCareProviderName()));
+				}
+				
+				careGiverDatas.put("care_provider",careProviderList);
 				careGiverDatas.put("category", categoryList);
 				careGiverDatas.put("orderList", jsonarr);
 				careGiverRecords.add(careGiverDatas);
@@ -179,14 +194,22 @@ public class CareGiverController {
 
 				}
 				
-				List<LabelValuePair> careProviderCategoryList=new ArrayList<>();
-				careProviderCategoryList.add(new LabelValuePair(1001, "HealthCare"));
-				careProviderCategoryList.add(new LabelValuePair(1002, "Physiotheraphy"));
-				
-				List<CareProviderList> careProviderList=new ArrayList<CareProviderList>();
-				careProviderList.add(new CareProviderList(1, "Carehub",careProviderCategoryList));
-				
-				
+				List<CareProviderList> careProviderList = new ArrayList<CareProviderList>();
+				for (Long careProviderId : careGiverList.getCareprovider()) {
+					List<LabelValuePair> careProviderCategoryList = new ArrayList<>();
+					Optional<CareProvider> careProvider = careProviderService.getCareProviderById(careProviderId);
+					List<Category> c = careProviderService.getCategoryListById(careProvider.get().getCategory());
+					System.out.println("C : " + c);
+					for (Category categoryData : c) {
+						if (categoryData != null) {
+							careProviderCategoryList.add(
+									new LabelValuePair(categoryData.getCategoryId(), categoryData.getCategoryName()));
+						}
+					}
+					careProviderList.add(new CareProviderList(careProvider.get().getCareProviderId(),
+							careProvider.get().getCareProviderName(), careProviderCategoryList));
+				}
+
 				careGiverRecord.put("mobile_no_isd_code", careGiverList.getMobileNoISDCode());
 				careGiverRecord.put("mobile_no", careGiverList.getMobileNo());
 				careGiverRecord.put("email", careGiverList.getEmailId());

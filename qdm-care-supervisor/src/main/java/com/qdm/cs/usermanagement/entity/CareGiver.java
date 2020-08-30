@@ -56,5 +56,11 @@ public class CareGiver extends BaseEntity implements Serializable {
 
 	@Column(name = "Clients_Count")
 	int clientsCount;
+	
+	@ElementCollection
+	@Basic(fetch = FetchType.EAGER)
+	@Column(name = "Provider_Id")
+	@JoinTable(name = "TB_GIVER_PROVIDER")
+	Collection<Long> careprovider;
 
 }

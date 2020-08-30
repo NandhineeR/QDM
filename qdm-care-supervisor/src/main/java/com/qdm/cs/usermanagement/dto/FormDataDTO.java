@@ -27,6 +27,7 @@ public class FormDataDTO {
 	String careCoordinatorName;
 	String careProviderName;
 	List<Integer> category;
+	List<Long> careprovider;
 	int MobileNoISDCode;
 	long mobileNo;
 	String emailId;

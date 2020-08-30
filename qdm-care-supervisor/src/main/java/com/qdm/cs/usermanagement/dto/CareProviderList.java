@@ -14,5 +14,12 @@ public class CareProviderList {
 	long id;
 	String name;
 	List<LabelValuePair> category;
+	public CareProviderList(long id, String name) {
+		super();
+		this.id = id;
+		this.name = name;
+	}
+	
+	
 	
 }
