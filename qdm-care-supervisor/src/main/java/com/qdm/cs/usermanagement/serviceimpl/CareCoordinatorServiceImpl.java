@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -55,7 +56,8 @@ public class CareCoordinatorServiceImpl implements CareCoordinatorService {
 
 	@Override
 	public List<CareCoordinator> getCareCoordinator(Integer pageNo, Integer pageSize) {
-		Pageable paging = PageRequest.of(pageNo, pageSize);
+		Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careCoordinatorName"));
+	//	Pageable paging = PageRequest.of(pageNo, pageSize);
 		Page<CareCoordinator> pagedResult = careCoordinatorRepository.findAll(paging);
 		return pagedResult.hasContent() ? pagedResult.getContent() : new ArrayList<CareCoordinator>();
 	}
@@ -187,7 +189,8 @@ public class CareCoordinatorServiceImpl implements CareCoordinatorService {
 
 	@Override
 	public List<CareCoordinator> searchCareCoordinator(Integer pageNo, Integer pageSize, String careCoordinatorName) {
-		Pageable paging = PageRequest.of(pageNo, pageSize);
+	//	Pageable paging = PageRequest.of(pageNo, pageSize);
+		Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careCoordinatorName"));
 		Page<CareCoordinator> pagedResult = careCoordinatorRepository
 				.findByCareCoordinatorName(careCoordinatorName.toLowerCase(), paging);
 		return pagedResult.hasContent() ? pagedResult.getContent() : new ArrayList<CareCoordinator>();
