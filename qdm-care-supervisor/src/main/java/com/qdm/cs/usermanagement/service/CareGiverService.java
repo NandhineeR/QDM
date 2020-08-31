@@ -14,7 +14,7 @@ import com.qdm.cs.usermanagement.enums.Status;
 
 public interface CareGiverService {
 
-	List<CareGiver> getCareGiver(Integer pageNo, Integer pageSize);
+	List<CareGiver> getCareGiver(Integer pageNo, Integer pageSize,String sortDirec,String sortfield);
 
 	Optional<CareGiver> getCareGiverById(int careGiverId);
 
@@ -32,7 +32,7 @@ public interface CareGiverService {
 
 	UploadProfile getFile(int fileId);
 
-	List<CareGiver> searchCareGiver(Integer pageNo, Integer pageSize, String careGiverName);
+	List<CareGiver> searchCareGiver(Integer pageNo, Integer pageSize, String careGiverName,String sortDirec,String sortfield);
 
 	List<CareGiver> searchAllCareGiversListCount(String careGiverName);
 

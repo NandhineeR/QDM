@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -55,9 +56,10 @@ public class CareCoordinatorServiceImpl implements CareCoordinatorService {
 	}
 
 	@Override
-	public List<CareCoordinator> getCareCoordinator(Integer pageNo, Integer pageSize) {
-		Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careCoordinatorName"));
-	//	Pageable paging = PageRequest.of(pageNo, pageSize);
+	public List<CareCoordinator> getCareCoordinator(Integer pageNo, Integer pageSize,String sortDirec,String sortfield) {
+	//	Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careCoordinatorName"));
+		Pageable paging = PageRequest.of(pageNo, pageSize,sortDirec.toLowerCase().startsWith("desc") ? Direction.DESC
+				: Direction.ASC,sortfield);
 		Page<CareCoordinator> pagedResult = careCoordinatorRepository.findAll(paging);
 		return pagedResult.hasContent() ? pagedResult.getContent() : new ArrayList<CareCoordinator>();
 	}
@@ -188,9 +190,10 @@ public class CareCoordinatorServiceImpl implements CareCoordinatorService {
 	}
 
 	@Override
-	public List<CareCoordinator> searchCareCoordinator(Integer pageNo, Integer pageSize, String careCoordinatorName) {
-	//	Pageable paging = PageRequest.of(pageNo, pageSize);
-		Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careCoordinatorName"));
+	public List<CareCoordinator> searchCareCoordinator(Integer pageNo, Integer pageSize, String careCoordinatorName,String sortDirec,String sortfield) {
+	//	Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careCoordinatorName"));
+		Pageable paging = PageRequest.of(pageNo, pageSize,sortDirec.toLowerCase().startsWith("desc") ? Direction.DESC
+				: Direction.ASC,sortfield);
 		Page<CareCoordinator> pagedResult = careCoordinatorRepository
 				.findByCareCoordinatorName(careCoordinatorName.toLowerCase(), paging);
 		return pagedResult.hasContent() ? pagedResult.getContent() : new ArrayList<CareCoordinator>();

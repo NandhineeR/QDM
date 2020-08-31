@@ -38,4 +38,10 @@ public class FormDataDTO {
 	int clientsCount;
 	int careGiversCount;
 	String inChargesName;
+	String bussinessRegNo;
+	int officeNoISDCode;
+	long officeNo;
+	String licenseNo;
+	int experience;
+	
 }

@@ -72,5 +72,14 @@ public class CareProvider extends BaseEntity implements Serializable {
 	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinColumn(name = "Upload_Photo_Id")
 	UploadProfile uploadPhoto;
+	
+	@Column(name = "Business_Reg_No")
+	String bussinessRegNo;
+	
+	@Column(name = "Office_ISD_Code")
+	int officeNoISDCode;
+	
+	@Column(name = "Office_No")
+	long officeNo;
 
 }

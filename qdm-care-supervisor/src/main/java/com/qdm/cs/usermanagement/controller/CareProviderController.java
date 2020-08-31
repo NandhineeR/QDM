@@ -70,16 +70,16 @@ public class CareProviderController {
 	@GetMapping(value = "/list/get", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<?> getCareProvider(@RequestParam(defaultValue = "0") Integer pageNo,
 			@RequestParam(defaultValue = "10") Integer pageSize,
-			@RequestParam(value="careProviderName",required = false) String careProviderName) {
+			@RequestParam(value="careProviderName",required = false) String careProviderName,@RequestParam(value="sortDirec",required = false) String sortDirec,@RequestParam(value="sortfield",required = false) String sortfield) {
 		ResponseEntity response = null;
 		List<CareProvider> careProviderList;
 		List<CareProvider> totalCount;
 		try {
 			if (careProviderName == null) {
-				careProviderList = careProviderService.getCareProvider(pageNo, pageSize);
+				careProviderList = careProviderService.getCareProvider(pageNo, pageSize,sortDirec,sortfield);
 				totalCount = careProviderService.getAllCareProviderListCount();
 			} else {
-				careProviderList = careProviderService.searchCareProvider(pageNo, pageSize, careProviderName);
+				careProviderList = careProviderService.searchCareProvider(pageNo, pageSize, careProviderName,sortDirec,sortfield);
 				totalCount = careProviderService.searchAllCareProviderListCount(careProviderName);
 			}
 			List<Object> careProviderRecords = new ArrayList<>();
@@ -208,6 +208,9 @@ public class CareProviderController {
 				careProviderRecord.put("care_giver_count", careProviderList.getCareGiversCount());
 				careProviderRecord.put("skills", skillsList);
 				careProviderRecord.put("category", categoryList);
+				careProviderRecord.put("business_reg_no", careProviderList.getBussinessRegNo());
+				careProviderRecord.put("office_no", careProviderList.getOfficeNo());
+				careProviderRecord.put("office_no_isd_code", careProviderList.getOfficeNoISDCode());
 
 				log.info("Get CareProvider Records By CareProviderId " + careProviderId);
 				response = new ResponseEntity(new ResponseInfo(ResponseType.SUCCESS.getResponseMessage(),

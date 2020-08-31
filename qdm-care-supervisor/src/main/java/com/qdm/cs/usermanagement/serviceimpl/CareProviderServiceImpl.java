@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -55,9 +56,10 @@ public class CareProviderServiceImpl implements CareProviderService {
 	}
 
 	@Override
-	public List<CareProvider> getCareProvider(Integer pageNo, Integer pageSize) {
-		Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careProviderName"));
-	//	Pageable paging = PageRequest.of(pageNo, pageSize);
+	public List<CareProvider> getCareProvider(Integer pageNo, Integer pageSize,String sortDirec,String sortfield) {
+	//	Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careProviderName"));
+		Pageable paging = PageRequest.of(pageNo, pageSize,sortDirec.toLowerCase().startsWith("desc") ? Direction.DESC
+				: Direction.ASC,sortfield);
 		Page<CareProvider> pagedResult = careProviderRepository.findAll(paging);
 		return pagedResult.hasContent() ? pagedResult.getContent() : new ArrayList<CareProvider>();
 	}
@@ -158,7 +160,13 @@ public class CareProviderServiceImpl implements CareProviderService {
 					: careProviderUpdateDate.get().getOfferings());
 			careProviderUpdateDate.get().setSkills(formDataDTO.getSkills() != null ? formDataDTO.getSkills()
 					: careProviderUpdateDate.get().getSkills());
-
+			careProviderUpdateDate.get().setBussinessRegNo(formDataDTO.getBussinessRegNo() != null ? formDataDTO.getBussinessRegNo()
+					: careProviderUpdateDate.get().getBussinessRegNo());
+			careProviderUpdateDate.get().setOfficeNo(formDataDTO.getOfficeNo() != 0 ? formDataDTO.getOfficeNo()
+					: careProviderUpdateDate.get().getOfficeNo());
+			careProviderUpdateDate.get().setOfficeNoISDCode(formDataDTO.getOfficeNoISDCode() != 0 ? formDataDTO.getOfficeNoISDCode()
+					: careProviderUpdateDate.get().getOfficeNoISDCode());
+			
 			if (formDataDTO.getUploadPhoto() != null) {
 				String fileName = StringUtils.cleanPath(formDataDTO.getUploadPhoto().getOriginalFilename());
 				try {
@@ -190,9 +198,10 @@ public class CareProviderServiceImpl implements CareProviderService {
 	}
 
 	@Override
-	public List<CareProvider> searchCareProvider(Integer pageNo, Integer pageSize, String careProviderName) {
-		Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careProviderName"));
-		//Pageable paging = PageRequest.of(pageNo, pageSize);
+	public List<CareProvider> searchCareProvider(Integer pageNo, Integer pageSize, String careProviderName,String sortDirec,String sortfield) {
+		//Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careProviderName"));
+		Pageable paging = PageRequest.of(pageNo, pageSize,sortDirec.toLowerCase().startsWith("desc") ? Direction.DESC
+				: Direction.ASC,sortfield);
 		Page<CareProvider> pagedResult = careProviderRepository.findByCareProviderName(careProviderName.toLowerCase(),
 				paging);
 		return pagedResult.hasContent() ? pagedResult.getContent() : new ArrayList<CareProvider>();

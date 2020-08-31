@@ -62,5 +62,11 @@ public class CareGiver extends BaseEntity implements Serializable {
 	@Column(name = "Provider_Id")
 	@JoinTable(name = "TB_GIVER_PROVIDER")
 	Collection<Long> careprovider;
+	
+	@Column(name = "License_No")
+	String licenseNo;
+	
+	@Column(name = "Experience")
+	int experience;
 
 }

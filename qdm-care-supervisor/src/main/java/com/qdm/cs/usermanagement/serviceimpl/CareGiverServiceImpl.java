@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -55,9 +56,10 @@ public class CareGiverServiceImpl implements CareGiverService {
 	}
 
 	@Override
-	public List<CareGiver> getCareGiver(Integer pageNo, Integer pageSize) {
-		Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careGiverName"));
-		//Pageable paging = PageRequest.of(pageNo, pageSize);
+	public List<CareGiver> getCareGiver(Integer pageNo, Integer pageSize,String sortDirec,String sortfield) {
+		//Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careGiverName"));
+		Pageable paging = PageRequest.of(pageNo, pageSize,sortDirec.toLowerCase().startsWith("desc") ? Direction.DESC
+				: Direction.ASC,sortfield);
 		Page<CareGiver> pagedResult = careGiverRepository.findAll(paging);
 		return pagedResult.hasContent() ? pagedResult.getContent() : new ArrayList<CareGiver>();
 	}
@@ -143,6 +145,10 @@ public class CareGiverServiceImpl implements CareGiverService {
 					: careGiverUpdateDate.get().getMobileNo());
 			careGiverUpdateDate.get().setSkills(
 					formDataDTO.getSkills() != null ? formDataDTO.getSkills() : careGiverUpdateDate.get().getSkills());
+			careGiverUpdateDate.get().setLicenseNo(formDataDTO.getLicenseNo() != null ? formDataDTO.getLicenseNo()
+					: careGiverUpdateDate.get().getLicenseNo());
+			careGiverUpdateDate.get().setExperience(formDataDTO.getExperience() != 0 ? formDataDTO.getExperience()
+					: careGiverUpdateDate.get().getExperience());
 			if (formDataDTO.getUploadPhoto() != null) {
 				String fileName = StringUtils.cleanPath(formDataDTO.getUploadPhoto().getOriginalFilename());
 				try {
@@ -174,9 +180,10 @@ public class CareGiverServiceImpl implements CareGiverService {
 	}
 
 	@Override
-	public List<CareGiver> searchCareGiver(Integer pageNo, Integer pageSize, String careGiverName) {
-		Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careGiverName"));
-		//Pageable paging = PageRequest.of(pageNo, pageSize);
+	public List<CareGiver> searchCareGiver(Integer pageNo, Integer pageSize, String careGiverName,String sortDirec,String sortfield) {
+		Pageable paging = PageRequest.of(pageNo, pageSize,sortDirec.toLowerCase().startsWith("desc") ? Direction.DESC
+				: Direction.ASC,sortfield);
+		//Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careGiverName"));
 		Page<CareGiver> pagedResult = careGiverRepository.findByCareGiverName(careGiverName.toLowerCase(), paging);
 		return pagedResult.hasContent() ? pagedResult.getContent() : new ArrayList<CareGiver>();
 	}

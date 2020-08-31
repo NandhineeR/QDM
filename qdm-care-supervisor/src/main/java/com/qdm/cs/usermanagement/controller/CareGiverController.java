@@ -77,16 +77,17 @@ public class CareGiverController {
 	@GetMapping(value = "/list/get", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<?> getCareGiver(@RequestParam(defaultValue = "0") Integer pageNo,
 			@RequestParam(defaultValue = "10") Integer pageSize,
-			@RequestParam(value = "careGiverName", required = false) String careGiverName) {
+			@RequestParam(value = "careGiverName", required = false) String careGiverName,
+			@RequestParam(value="sortDirec",required = false) String sortDirec,@RequestParam(value="sortfield",required = false) String sortfield) {
 		ResponseEntity response = null;
 		List<CareGiver> careGiverList;
 		List<CareGiver> getAllCareGiversListCount;
 		try {
 			if (careGiverName == null) {
-				careGiverList = careGiverService.getCareGiver(pageNo, pageSize);
+				careGiverList = careGiverService.getCareGiver(pageNo, pageSize,sortDirec,sortfield);
 				getAllCareGiversListCount = careGiverService.getAllCareGiversListCount();
 			} else {
-				careGiverList = careGiverService.searchCareGiver(pageNo, pageSize, careGiverName);
+				careGiverList = careGiverService.searchCareGiver(pageNo, pageSize, careGiverName,sortDirec,sortfield);
 				getAllCareGiversListCount = careGiverService.searchAllCareGiversListCount(careGiverName);
 			}
 			List<Object> careGiverRecords = new ArrayList<>();
@@ -129,8 +130,9 @@ public class CareGiverController {
 				List<CareProviderList> careProviderList = new ArrayList<CareProviderList>();
 				for (Long careProviderId : careGiver.getCareprovider()) {
 					Optional<CareProvider> careProvider = careProviderService.getCareProviderById(careProviderId);
+					if(careProvider.isPresent()) {
 					careProviderList.add(new CareProviderList(careProvider.get().getCareProviderId(),
-							careProvider.get().getCareProviderName()));
+							careProvider.get().getCareProviderName()));}
 				}
 				
 				careGiverDatas.put("care_provider",careProviderList);
@@ -198,6 +200,7 @@ public class CareGiverController {
 				for (Long careProviderId : careGiverList.getCareprovider()) {
 					List<LabelValuePair> careProviderCategoryList = new ArrayList<>();
 					Optional<CareProvider> careProvider = careProviderService.getCareProviderById(careProviderId);
+					if(careProvider.isPresent()) {
 					List<Category> c = careProviderService.getCategoryListById(careProvider.get().getCategory());
 					System.out.println("C : " + c);
 					for (Category categoryData : c) {
@@ -208,6 +211,7 @@ public class CareGiverController {
 					}
 					careProviderList.add(new CareProviderList(careProvider.get().getCareProviderId(),
 							careProvider.get().getCareProviderName(), careProviderCategoryList));
+					}
 				}
 
 				careGiverRecord.put("mobile_no_isd_code", careGiverList.getMobileNoISDCode());
@@ -221,6 +225,8 @@ public class CareGiverController {
 				careGiverRecord.put("skills", skillsList);
 				careGiverRecord.put("category", categoryList);
 				careGiverRecord.put("care_provider", careProviderList);
+				careGiverRecord.put("license_no", careGiverList.getLicenseNo());
+				careGiverRecord.put("experience", careGiverList.getExperience());
 
 				log.info("Get CareGiver Records By CareGiverId " + careGiverId);
 				response = new ResponseEntity(new ResponseInfo(ResponseType.SUCCESS.getResponseMessage(),

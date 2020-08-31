@@ -70,18 +70,18 @@ public class CareCoordinatorController {
 	@GetMapping(value = "/list/get", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<?> getCareCoordinator(@RequestParam(defaultValue = "0") Integer pageNo,
 			@RequestParam(defaultValue = "10") Integer pageSize,
-			@RequestParam(value = "careCoordinatorName",required = false) String careCoordinatorName) {
+			@RequestParam(value = "careCoordinatorName",required = false) String careCoordinatorName,@RequestParam(value="sortDirec",required = false) String sortDirec,@RequestParam(value="sortfield",required = false) String sortfield) {
 		ResponseEntity response = null;
 		List<CareCoordinator> careCoordinatorList;
 		List<CareCoordinator> careCoordinatorListCount;
 
 		try {
 			if (careCoordinatorName == null) {
-				careCoordinatorList = careCoordinatorService.getCareCoordinator(pageNo, pageSize);
+				careCoordinatorList = careCoordinatorService.getCareCoordinator(pageNo, pageSize,sortDirec,sortfield);
 				careCoordinatorListCount = careCoordinatorService.getCareCoordinatorListCount();
 			} else {
 				careCoordinatorList = careCoordinatorService.searchCareCoordinator(pageNo, pageSize,
-						careCoordinatorName);
+						careCoordinatorName,sortDirec,sortfield);
 				careCoordinatorListCount = careCoordinatorService.searchCareCoordinatorListCount(careCoordinatorName);
 			}
 			List<Object> coordinator = new ArrayList<>();
