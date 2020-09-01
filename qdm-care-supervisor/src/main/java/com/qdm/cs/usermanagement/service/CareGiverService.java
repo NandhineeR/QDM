@@ -38,4 +38,6 @@ public interface CareGiverService {
 
 	List<Skills> getSkillsListById(Collection<Integer> skills);
 
+	CareGiver deleteCareProviderMapping(Long careGiverId, Long careProviderId);
+
 }

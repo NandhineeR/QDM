@@ -18,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -78,16 +79,17 @@ public class CareGiverController {
 	public ResponseEntity<?> getCareGiver(@RequestParam(defaultValue = "0") Integer pageNo,
 			@RequestParam(defaultValue = "10") Integer pageSize,
 			@RequestParam(value = "careGiverName", required = false) String careGiverName,
-			@RequestParam(value="sortDirec",required = false) String sortDirec,@RequestParam(value="sortfield",required = false) String sortfield) {
+			@RequestParam(value = "sortDirec", required = false) String sortDirec,
+			@RequestParam(value = "sortfield", required = false) String sortfield) {
 		ResponseEntity response = null;
 		List<CareGiver> careGiverList;
 		List<CareGiver> getAllCareGiversListCount;
 		try {
 			if (careGiverName == null) {
-				careGiverList = careGiverService.getCareGiver(pageNo, pageSize,sortDirec,sortfield);
+				careGiverList = careGiverService.getCareGiver(pageNo, pageSize, sortDirec, sortfield);
 				getAllCareGiversListCount = careGiverService.getAllCareGiversListCount();
 			} else {
-				careGiverList = careGiverService.searchCareGiver(pageNo, pageSize, careGiverName,sortDirec,sortfield);
+				careGiverList = careGiverService.searchCareGiver(pageNo, pageSize, careGiverName, sortDirec, sortfield);
 				getAllCareGiversListCount = careGiverService.searchAllCareGiversListCount(careGiverName);
 			}
 			List<Object> careGiverRecords = new ArrayList<>();
@@ -125,17 +127,18 @@ public class CareGiverController {
 				} else {
 					careGiverDatas.put("profile_pic", "");
 				}
-				
-				//CareProvider
+
+				// CareProvider
 				List<CareProviderList> careProviderList = new ArrayList<CareProviderList>();
 				for (Long careProviderId : careGiver.getCareprovider()) {
 					Optional<CareProvider> careProvider = careProviderService.getCareProviderById(careProviderId);
-					if(careProvider.isPresent()) {
-					careProviderList.add(new CareProviderList(careProvider.get().getCareProviderId(),
-							careProvider.get().getCareProviderName()));}
+					if (careProvider.isPresent()) {
+						careProviderList.add(new CareProviderList(careProvider.get().getCareProviderId(),
+								careProvider.get().getCareProviderName()));
+					}
 				}
-				
-				careGiverDatas.put("care_provider",careProviderList);
+
+				careGiverDatas.put("care_provider", careProviderList);
 				careGiverDatas.put("category", categoryList);
 				careGiverDatas.put("orderList", jsonarr);
 				careGiverRecords.add(careGiverDatas);
@@ -195,22 +198,21 @@ public class CareGiverController {
 					careGiverRecord.put("profile_pic", "");
 
 				}
-				
+
 				List<CareProviderList> careProviderList = new ArrayList<CareProviderList>();
 				for (Long careProviderId : careGiverList.getCareprovider()) {
 					List<LabelValuePair> careProviderCategoryList = new ArrayList<>();
 					Optional<CareProvider> careProvider = careProviderService.getCareProviderById(careProviderId);
-					if(careProvider.isPresent()) {
-					List<Category> c = careProviderService.getCategoryListById(careProvider.get().getCategory());
-					System.out.println("C : " + c);
-					for (Category categoryData : c) {
-						if (categoryData != null) {
-							careProviderCategoryList.add(
-									new LabelValuePair(categoryData.getCategoryId(), categoryData.getCategoryName()));
+					if (careProvider.isPresent()) {
+						List<Category> c = careProviderService.getCategoryListById(careProvider.get().getCategory());
+						for (Category categoryData : c) {
+							if (categoryData != null) {
+								careProviderCategoryList.add(new LabelValuePair(categoryData.getCategoryId(),
+										categoryData.getCategoryName()));
+							}
 						}
-					}
-					careProviderList.add(new CareProviderList(careProvider.get().getCareProviderId(),
-							careProvider.get().getCareProviderName(), careProviderCategoryList));
+						careProviderList.add(new CareProviderList(careProvider.get().getCareProviderId(),
+								careProvider.get().getCareProviderName(), careProviderCategoryList));
 					}
 				}
 
@@ -334,6 +336,25 @@ public class CareGiverController {
 			}
 		} catch (Exception e) {
 			log.error("Error Occured At updateClientsActiveStatus : " + e.getMessage());
+			response = new ResponseEntity(new ResponseInfo(ResponseType.ERROR.getResponseMessage(),
+					ResponseType.ERROR.getResponseCode(), "Try Again", null), HttpStatus.INTERNAL_SERVER_ERROR);
+			return response;
+		}
+	}
+
+	
+	@DeleteMapping(value = "details/get/detach", produces = { MediaType.APPLICATION_JSON_VALUE })
+	public ResponseEntity<?> detach(@RequestParam("careGiverId") Long careGiverId,
+			@RequestParam("careProviderId") Long careProviderId) {
+		ResponseEntity response = null;
+		try {
+			CareGiver careGiver = careGiverService.deleteCareProviderMapping(careGiverId, careProviderId);
+			log.info("Care Provider Deleted Successfully for CareGiver_Id : " + careGiver.getCareGiverId());
+			response = new ResponseEntity(new ResponseInfo(ResponseType.SUCCESS.getResponseMessage(),
+					ResponseType.SUCCESS.getResponseCode(), "", null), HttpStatus.CREATED);
+			return response;
+		} catch (Exception e) {
+			log.error("Error Occured At careGiverdetach : " + e.getMessage());
 			response = new ResponseEntity(new ResponseInfo(ResponseType.ERROR.getResponseMessage(),
 					ResponseType.ERROR.getResponseCode(), "Try Again", null), HttpStatus.INTERNAL_SERVER_ERROR);
 			return response;

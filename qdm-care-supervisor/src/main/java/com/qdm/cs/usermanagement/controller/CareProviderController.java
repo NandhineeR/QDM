@@ -99,7 +99,7 @@ public class CareProviderController {
 
 				JSONObject careGivers = new JSONObject();
 				careGivers.put("count", careProvider.getCareGiversCount());
-				careGivers.put("name", "CareGivers");
+				careGivers.put("name", "Service Professional");
 
 				JSONObject products = new JSONObject();
 				products.put("count", careProvider.getProductsCount());

@@ -6,7 +6,9 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.qdm.cs.usermanagement.entity.CareGiver;
@@ -21,5 +23,5 @@ public interface CareGiverRepository extends JpaRepository<CareGiver, Long> {
 
 	@Query("Select c from CareGiver c where lower(c.careGiverName) like %:careGiverName%")
 	List<CareGiver> findByCareGiverName(String careGiverName);
-	
+
 }

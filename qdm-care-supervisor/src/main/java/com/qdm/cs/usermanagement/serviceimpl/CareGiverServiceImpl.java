@@ -13,18 +13,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.qdm.cs.usermanagement.dto.FormDataDTO;
 import com.qdm.cs.usermanagement.entity.CareGiver;
+import com.qdm.cs.usermanagement.entity.CareProvider;
 import com.qdm.cs.usermanagement.entity.Category;
 import com.qdm.cs.usermanagement.entity.Skills;
 import com.qdm.cs.usermanagement.entity.UploadProfile;
 import com.qdm.cs.usermanagement.enums.Status;
 import com.qdm.cs.usermanagement.repository.CareGiverRepository;
+import com.qdm.cs.usermanagement.repository.CareProviderRepository;
 import com.qdm.cs.usermanagement.repository.CategoryRepository;
 import com.qdm.cs.usermanagement.repository.SkillsRepository;
 import com.qdm.cs.usermanagement.repository.UploadProfileRepository;
@@ -42,24 +43,26 @@ public class CareGiverServiceImpl implements CareGiverService {
 	ModelMapper modelMapper;
 	UploadProfileRepository uploadProfileRepository;
 	SkillsRepository skillsRepository;
+	CareProviderRepository careProviderRepository;
 
 	@Autowired
 	public CareGiverServiceImpl(CategoryRepository categoryRepository, CareGiverRepository careGiverRepository,
-			ModelMapper modelMapper, UploadProfileRepository uploadProfileRepository,
-			SkillsRepository skillsRepository) {
+			ModelMapper modelMapper, UploadProfileRepository uploadProfileRepository, SkillsRepository skillsRepository,
+			CareProviderRepository careProviderRepository) {
 		super();
 		this.categoryRepository = categoryRepository;
 		this.careGiverRepository = careGiverRepository;
 		this.modelMapper = modelMapper;
 		this.uploadProfileRepository = uploadProfileRepository;
 		this.skillsRepository = skillsRepository;
+		this.careProviderRepository = careProviderRepository;
 	}
 
 	@Override
-	public List<CareGiver> getCareGiver(Integer pageNo, Integer pageSize,String sortDirec,String sortfield) {
-		//Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careGiverName"));
-		Pageable paging = PageRequest.of(pageNo, pageSize,sortDirec.toLowerCase().startsWith("desc") ? Direction.DESC
-				: Direction.ASC,sortfield);
+	public List<CareGiver> getCareGiver(Integer pageNo, Integer pageSize, String sortDirec, String sortfield) {
+		// Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careGiverName"));
+		Pageable paging = PageRequest.of(pageNo, pageSize,
+				sortDirec.toLowerCase().startsWith("desc") ? Direction.DESC : Direction.ASC, sortfield);
 		Page<CareGiver> pagedResult = careGiverRepository.findAll(paging);
 		return pagedResult.hasContent() ? pagedResult.getContent() : new ArrayList<CareGiver>();
 	}
@@ -104,6 +107,16 @@ public class CareGiverServiceImpl implements CareGiverService {
 	@Override
 	public CareGiver addCareGiver(FormDataDTO formDataDTO) {
 		CareGiver careGiver = modelMapper.map(formDataDTO, CareGiver.class);
+		if (careGiver.getCareprovider().size() != 0) {
+			for (Long careProvider : careGiver.getCareprovider()) {
+				Optional<CareProvider> carePro = careProviderRepository.findById(careProvider);
+				if (carePro.isPresent()) {
+					int count = carePro.get().getCareGiversCount();
+					carePro.get().setCareGiversCount(count + 1);
+					careProviderRepository.save(carePro.get());
+				}
+			}
+		}
 		if (careGiver.getUploadPhoto() != null) {
 			UploadProfile uploadProfile = null;
 			try {
@@ -135,8 +148,6 @@ public class CareGiverServiceImpl implements CareGiverService {
 							: careGiverUpdateDate.get().getCareGiverName());
 			careGiverUpdateDate.get().setCategory(formDataDTO.getCategory() != null ? formDataDTO.getCategory()
 					: careGiverUpdateDate.get().getCategory());
-			careGiverUpdateDate.get().setCareprovider(formDataDTO.getCareprovider() != null ? formDataDTO.getCareprovider()
-					: careGiverUpdateDate.get().getCareprovider());
 			careGiverUpdateDate.get().setClientsCount(formDataDTO.getClientsCount() != 0 ? formDataDTO.getClientsCount()
 					: careGiverUpdateDate.get().getClientsCount());
 			careGiverUpdateDate.get().setEmailId(formDataDTO.getEmailId() != null ? formDataDTO.getEmailId()
@@ -149,6 +160,24 @@ public class CareGiverServiceImpl implements CareGiverService {
 					: careGiverUpdateDate.get().getLicenseNo());
 			careGiverUpdateDate.get().setExperience(formDataDTO.getExperience() != 0 ? formDataDTO.getExperience()
 					: careGiverUpdateDate.get().getExperience());
+
+			for (Long careProExistingList : careGiverUpdateDate.get().getCareprovider()) {
+				for (Long careProNewList : formDataDTO.getCareprovider()) {
+					Optional<CareProvider> careProviderById = careProviderRepository.findById(careProNewList);
+					if (careProviderById.isPresent()) {
+						if (careProExistingList == careProNewList) {
+							careProviderById.get().setCareGiversCount(careProviderById.get().getCareGiversCount());
+						} else {
+							careProviderById.get().setCareGiversCount(careProviderById.get().getCareGiversCount() + 1);
+						}
+					}
+				}
+			}
+
+			careGiverUpdateDate.get()
+					.setCareprovider(formDataDTO.getCareprovider() != null ? formDataDTO.getCareprovider()
+							: careGiverUpdateDate.get().getCareprovider());
+
 			if (formDataDTO.getUploadPhoto() != null) {
 				String fileName = StringUtils.cleanPath(formDataDTO.getUploadPhoto().getOriginalFilename());
 				try {
@@ -180,10 +209,11 @@ public class CareGiverServiceImpl implements CareGiverService {
 	}
 
 	@Override
-	public List<CareGiver> searchCareGiver(Integer pageNo, Integer pageSize, String careGiverName,String sortDirec,String sortfield) {
-		Pageable paging = PageRequest.of(pageNo, pageSize,sortDirec.toLowerCase().startsWith("desc") ? Direction.DESC
-				: Direction.ASC,sortfield);
-		//Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careGiverName"));
+	public List<CareGiver> searchCareGiver(Integer pageNo, Integer pageSize, String careGiverName, String sortDirec,
+			String sortfield) {
+		Pageable paging = PageRequest.of(pageNo, pageSize,
+				sortDirec.toLowerCase().startsWith("desc") ? Direction.DESC : Direction.ASC, sortfield);
+		// Pageable paging = PageRequest.of(pageNo, pageSize,Sort.by("careGiverName"));
 		Page<CareGiver> pagedResult = careGiverRepository.findByCareGiverName(careGiverName.toLowerCase(), paging);
 		return pagedResult.hasContent() ? pagedResult.getContent() : new ArrayList<CareGiver>();
 	}
@@ -201,6 +231,27 @@ public class CareGiverServiceImpl implements CareGiverService {
 			data.add(skillList);
 		}
 		return data;
+	}
+
+	@Override
+	public CareGiver deleteCareProviderMapping(Long careGiverId, Long careProviderId) {
+		List<Long> obj = new ArrayList<Long>();
+		Optional<CareGiver> careGiver = careGiverRepository.findById(careGiverId);
+		if (careGiver.isPresent()) {
+			for (Long careProvider : careGiver.get().getCareprovider()) {
+				obj.add(careProvider);
+				if (careProvider == careProviderId) {
+					obj.remove(careProviderId);
+					Optional<CareProvider> carePro = careProviderRepository.findById(careProviderId);
+					if (carePro.isPresent()) {
+						carePro.get().setCareGiversCount(carePro.get().getCareGiversCount() - 1);
+					}
+				}
+			}
+			careGiver.get().setCareprovider(obj);
+			careGiverRepository.save(careGiver.get());
+		}
+		return careGiver.get();
 	}
 
 }

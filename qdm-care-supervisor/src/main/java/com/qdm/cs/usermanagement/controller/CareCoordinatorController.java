@@ -101,7 +101,7 @@ public class CareCoordinatorController {
 
 				JSONObject careGivers = new JSONObject();
 				careGivers.put("count", careCoordinatorData.getCareGiversCount());
-				careGivers.put("name", "CareGivers");
+				careGivers.put("name", "Service Professional");
 
 				JSONObject clients = new JSONObject();
 				clients.put("count", careCoordinatorData.getClientsCount());
