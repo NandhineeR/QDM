@@ -107,7 +107,7 @@ public class CareGiverServiceImpl implements CareGiverService {
 	@Override
 	public CareGiver addCareGiver(FormDataDTO formDataDTO) {
 		CareGiver careGiver = modelMapper.map(formDataDTO, CareGiver.class);
-		if (careGiver.getCareprovider().size() != 0) {
+		if (formDataDTO.getCareprovider() != null) {
 			for (Long careProvider : careGiver.getCareprovider()) {
 				Optional<CareProvider> carePro = careProviderRepository.findById(careProvider);
 				if (carePro.isPresent()) {
