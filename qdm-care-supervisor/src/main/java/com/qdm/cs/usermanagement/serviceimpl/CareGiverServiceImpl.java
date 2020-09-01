@@ -161,6 +161,7 @@ public class CareGiverServiceImpl implements CareGiverService {
 			careGiverUpdateDate.get().setExperience(formDataDTO.getExperience() != 0 ? formDataDTO.getExperience()
 					: careGiverUpdateDate.get().getExperience());
 
+			if(formDataDTO.getCareprovider() != null) {
 			for (Long careProExistingList : careGiverUpdateDate.get().getCareprovider()) {
 				for (Long careProNewList : formDataDTO.getCareprovider()) {
 					Optional<CareProvider> careProviderById = careProviderRepository.findById(careProNewList);
@@ -172,6 +173,7 @@ public class CareGiverServiceImpl implements CareGiverService {
 						}
 					}
 				}
+			}
 			}
 
 			careGiverUpdateDate.get()
