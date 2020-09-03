@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductList {
-	long product_id;
-	String product_name;
+	Object product_id;
+	Object product_name;
 }

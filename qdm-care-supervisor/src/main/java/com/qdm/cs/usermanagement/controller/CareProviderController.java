@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.servlet.http.HttpServletRequest;
 
 import org.json.simple.JSONArray;
@@ -49,6 +52,9 @@ public class CareProviderController {
 	@Autowired
 	CareProviderService careProviderService;
 
+	@PersistenceContext
+	private EntityManager em;
+
 	@PostMapping(value = "/add", produces = { MediaType.APPLICATION_JSON_VALUE }, consumes = {
 			MediaType.MULTIPART_FORM_DATA_VALUE })
 	public ResponseEntity<?> addCareProvider(FormDataDTO formDataDTO) throws IOException {
@@ -70,16 +76,19 @@ public class CareProviderController {
 	@GetMapping(value = "/list/get", produces = { MediaType.APPLICATION_JSON_VALUE })
 	public ResponseEntity<?> getCareProvider(@RequestParam(defaultValue = "0") Integer pageNo,
 			@RequestParam(defaultValue = "10") Integer pageSize,
-			@RequestParam(value="careProviderName",required = false) String careProviderName,@RequestParam(value="sortDirec",required = false) String sortDirec,@RequestParam(value="sortfield",required = false) String sortfield) {
+			@RequestParam(value = "careProviderName", required = false) String careProviderName,
+			@RequestParam(value = "sortDirec", required = false) String sortDirec,
+			@RequestParam(value = "sortfield", required = false) String sortfield) {
 		ResponseEntity response = null;
 		List<CareProvider> careProviderList;
 		List<CareProvider> totalCount;
 		try {
 			if (careProviderName == null) {
-				careProviderList = careProviderService.getCareProvider(pageNo, pageSize,sortDirec,sortfield);
+				careProviderList = careProviderService.getCareProvider(pageNo, pageSize, sortDirec, sortfield);
 				totalCount = careProviderService.getAllCareProviderListCount();
 			} else {
-				careProviderList = careProviderService.searchCareProvider(pageNo, pageSize, careProviderName,sortDirec,sortfield);
+				careProviderList = careProviderService.searchCareProvider(pageNo, pageSize, careProviderName, sortDirec,
+						sortfield);
 				totalCount = careProviderService.searchAllCareProviderListCount(careProviderName);
 			}
 			List<Object> careProviderRecords = new ArrayList<>();
@@ -167,12 +176,20 @@ public class CareProviderController {
 						categoryList.add(categoryMap);
 					}
 				}
-				List<ProductList> productList=new ArrayList<>();
-				productList.add(new ProductList(1001, "Mirama Case"));
-				productList.add(new ProductList(1002,"Craft Co-Wellness"));
-				productList.add(new ProductList(1003,"Carehub"));
-				productList.add(new ProductList(1004,"UMMC"));
-				
+
+				// Product List Mapping
+				List<ProductList> productList = new ArrayList<>();
+				try {
+					Query q = em.createNativeQuery("SELECT * from  tbl_cs_product WHERE care_provider_id = ?1");
+					q.setParameter(1, careProviderList.getCareProviderId());
+					List<Object[]> results = q.getResultList();
+					for (Object[] result : results) {
+						productList.add(new ProductList(result[0],result[6]));
+					}
+				} catch (Exception e) {
+					log.error("Product List Mapping Query Error");
+				}
+
 				List<Skills> skills = careProviderService.getSkillsListById(careProviderList.getSkills());
 				List<Object> skillsList = new ArrayList<>();
 				for (Skills skillsData : skills) {
@@ -184,7 +201,6 @@ public class CareProviderController {
 					}
 				}
 
-				System.out.println("Offers " + careProviderList.getOfferings() + "  " + careProviderList.getSkills());
 				careProviderRecord.put("id", careProviderList.getCareProviderId());
 				careProviderRecord.put("name", careProviderList.getCareProviderName());
 				careProviderRecord.put("isactive", careProviderList.getActiveStatus());
