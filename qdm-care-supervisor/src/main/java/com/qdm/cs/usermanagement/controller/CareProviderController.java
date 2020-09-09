@@ -180,15 +180,16 @@ public class CareProviderController {
 				// Product List Mapping
 				List<ProductList> productList = new ArrayList<>();
 				try {
-					Query q = em.createNativeQuery("SELECT * from  tbl_cs_product WHERE care_provider_id = ?1");
+					Query q = em.createNativeQuery("SELECT product_id,name from  tbl_cs_product WHERE care_provider_id = ?1");
 					q.setParameter(1, careProviderList.getCareProviderId());
 					List<Object[]> results = q.getResultList();
 					for (Object[] result : results) {
-						productList.add(new ProductList(result[0],result[6]));
+						productList.add(new ProductList(result[0],result[1]));
 					}
 				} catch (Exception e) {
 					log.error("Product List Mapping Query Error");
 				}
+
 
 				List<Skills> skills = careProviderService.getSkillsListById(careProviderList.getSkills());
 				List<Object> skillsList = new ArrayList<>();
